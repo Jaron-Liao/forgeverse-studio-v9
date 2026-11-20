@@ -77,3 +77,18 @@ vendor/             # 本地 3D 引擎（1.7MB）
 ```
 
 > 提示：若用 `file://` 直接打开时浏览器禁用了本地模块，请在此目录运行任意静态服务器（如 `python -m http.server`）后访问。用预览面板打开则无此问题。
+
+---
+
+## v9.1 更新（2026-11-21）
+
+- **工作台四栏重构**：左右/下侧栏可关闭（栏内关闭按钮），顶栏「面板」入口 + 快捷键 `F2`/`[`/`]` 可随时重开；显隐状态存 `v9.panels`。
+- **画质升级**：修天空过曝（Bloom threshold 1.35、exposure 上限 0.88、rayleigh 降低）；SSAO/像素比调优。
+- **体素沙盒 + 物理**：`voxel.js` + `physics.js`，双模式切换。
+- **多页站点**：home / levels / leaderboard / help / about。
+
+**部署与仓库**
+- 云端站点：https://www.workbuddy.cn/space/d/4ci7xHY6LpqMdHbiGNYnvg
+- GitHub：https://github.com/Jaron-Liao/forgeverse-studio-v9
+- GitHub Pages：https://jaron-liao.github.io/forgeverse-studio-v9/ （Pages 来源 GitHub Actions，首次部署需工作流跑完）
+- 详见 `docs/DEPLOY_TEST_REPORT_v9_1.md`、`docs/GITHUB_RESOURCES.md`。

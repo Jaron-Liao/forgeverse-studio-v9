@@ -31,7 +31,8 @@
 ## 三、部署
 
 - 云端站点（v9 对齐版本）：https://www.workbuddy.cn/space/d/4ci7xHY6LpqMdHbiGNYnvg
-- GitHub 仓库：见文末（A5 创建后填入）
+- GitHub 仓库：https://github.com/Jaron-Liao/forgeverse-studio-v9 （8 commits，main 分支）
+- GitHub Pages：https://jaron-liao.github.io/forgeverse-studio-v9/ （来源 GitHub Actions，工作流 `.github/workflows/deploy.yml`，首次需 Actions 跑完；若 404 检查 Actions 状态）
 - 本地运行：`cd workbench3d && python -m http.server 8091`，浏览器访问 `http://127.0.0.1:8091/`
 
 ## 四、运维与迭代方案
