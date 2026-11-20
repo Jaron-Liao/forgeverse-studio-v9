@@ -46,6 +46,10 @@ import { initPhysics, registerBody, unregisterBody, setPhysicsEnabled, isPhysics
 const $ = id => document.getElementById(id);
 const MODE_TXT = { select: '选择', paint: '绘画', sculpt: '雕刻', terrain: '地貌' };
 const TABS = ['obj', 'build', 'paint', 'mat', 'world', 'env', 'scene'];
+// FV-A1：面板显隐（键 + 栏 ID + 提示名），localStorage 键固定为 v9.panels
+const PANELS_KEY = 'v9.panels';
+const PANEL_BARS = { left: 'leftbar', right: 'rightbar', bottom: 'bottombar' };
+const PANEL_NAME = { left: '左侧栏', right: '右侧栏', bottom: '下侧栏' };
 
 // ---------- 撤销/重做 ----------
 const undoStack = [], redoStack = [];
@@ -172,6 +176,7 @@ function boot() {
   });
 
   wireUI();
+  wirePanelToggles();       // FV-A1：面板关闭/重开接线（只做显隐，不碰渲染与 bus）
   bus.on('objects', () => { renderTree(); updateHUD(); const tc = $('treeCount'); if (tc) tc.textContent = App.objects.length; });
   bus.on('select', () => renderTree());
   window.addEventListener('wb:transform', updateInspector);
@@ -183,6 +188,74 @@ function boot() {
 
   $('loading').classList.add('hidden');
   // 入口由 showManager() 统一展示全屏世界管理页，旧的 #intro 弹窗不再弹出
+}
+
+// ---------- FV-A1：面板显隐 / 重开 / 持久化 ----------
+function readPanelState() {
+  const state = { left: true, right: true, bottom: true };
+  try {
+    const raw = JSON.parse(localStorage.getItem(PANELS_KEY) || 'null');
+    if (raw && typeof raw === 'object') {
+      Object.keys(state).forEach(k => { if (typeof raw[k] === 'boolean') state[k] = raw[k]; });
+    }
+  } catch (_) { /* 隐私模式 / 存储不可用时用默认值 */ }
+  return state;
+}
+let panelState = readPanelState();
+
+function applyPanelState() {
+  const app = $('app');
+  if (!app) return;
+  Object.keys(PANEL_BARS).forEach(key => {
+    const bar = $(PANEL_BARS[key]);
+    const shown = panelState[key];
+    // 只切 class，不删 DOM / 不改 ID；.collapsed（闲置自动收起）与之彼此独立
+    if (bar) bar.classList.toggle('v9-panel-hidden', !shown);
+    app.classList.toggle('v9-no-' + key, !shown); // 触发 CSS 槽位变化 → 其余栏自动扩展
+    const cb = $('v9-show-' + key);
+    if (cb) cb.checked = shown;
+  });
+  try { localStorage.setItem(PANELS_KEY, JSON.stringify(panelState)); } catch (_) {}
+}
+function setPanel(key, shown) {
+  if (!Object.prototype.hasOwnProperty.call(PANEL_BARS, key)) return;
+  panelState[key] = !!shown;
+  applyPanelState();
+}
+function togglePanel(key) { setPanel(key, !panelState[key]); }
+
+function wirePanelToggles() {
+  // 三个关闭按钮 + 顶栏三个复选项，共用同一份状态
+  Object.keys(PANEL_BARS).forEach(key => {
+    const hide = $('v9-hide-' + key);
+    if (hide) hide.onclick = () => {
+      setPanel(key, false);
+      toast('已收起' + PANEL_NAME[key] + '，可从顶栏「面板」恢复');
+    };
+    const cb = $('v9-show-' + key);
+    if (cb) cb.onchange = e => setPanel(key, e.target.checked);
+  });
+
+  // 顶栏下拉：点击展开/收起，点击外部或 Esc 关闭
+  const btn = $('v9-panel-toggle');
+  const menu = $('v9-panel-menu');
+  if (btn && menu) {
+    const closeMenu = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+    btn.onclick = ev => {
+      ev.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    menu.onclick = ev => ev.stopPropagation();
+    document.addEventListener('click', ev => {
+      if (!menu.hidden && !ev.target.closest('.v9-panel-toggle-wrap')) closeMenu();
+    });
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !menu.hidden) { closeMenu(); btn.focus(); }
+    });
+  }
+  applyPanelState(); // 恢复 localStorage 中的显隐状态
 }
 
 // ---------- UI 连线 ----------
@@ -734,6 +807,10 @@ function startWorld() {
 
 function onKey(e) {
   if (e.target.tagName === 'INPUT' || App.firstPerson) return;
+  // FV-A1：面板快捷键（顶栏入口关闭后仍可用；不触碰 WASD/变换/撤销键）
+  if (e.key === '[') { e.preventDefault(); togglePanel('left'); return; }
+  if (e.key === ']') { e.preventDefault(); togglePanel('right'); return; }
+  if (e.key === 'F2') { e.preventDefault(); togglePanel('bottom'); return; }
   if (e.key === 'w' || e.key === 'W') App.engine.tcontrols.setMode('translate');
   else if (e.key === 'e' || e.key === 'E') App.engine.tcontrols.setMode('rotate');
   else if (e.key === 'r' || e.key === 'R') App.engine.tcontrols.setMode('scale');

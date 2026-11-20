@@ -33,7 +33,7 @@ export function updateSky(t) {
   sky.material.uniforms.sunPosition.value.copy(skySun);
   // 天空与太阳同步色调
   const day = Math.max(0, Math.sin(t * Math.PI));
-  sky.material.uniforms.rayleigh.value = 0.6 + day * 1.6;
+  sky.material.uniforms.rayleigh.value = 0.5 + day * 1.1;   // 降低白天瑞利散射，避免天空泛白
   sky.material.uniforms.turbidity.value = 2 + (1 - day) * 10;
 }
 

@@ -487,3 +487,140 @@ button.full{width:100%}
 .bs,.lbl,.tree .node .x,.grp,.xpbar span,.t-list li .ck,.pet-name,.tip,.sub,
 .hint.xs,.cnt,.bool-target #boolTargetName,.help-grid span,.mm-label,
 .ic-tag,.info-col h4,.info-col textarea,.info-col .wx,.info-col .me{font-size:12px}
+
+/* ================================================================
+   FV-A1 · 工作台四栏布局重构（v9 暗金玄墨）
+   ----------------------------------------------------------------
+   目标：3D 视窗是主角；四栏围成清晰框景，彼此不叠压。
+   做法：在 #app 上定义「槽位变量」，各栏只引用槽位；关闭某栏时
+   JS 给 #app 加 .v9-no-* 类，把对应槽位收为单侧留白，其余栏
+   自动扩展。全程不改 DOM ID、不动渲染/画质逻辑。
+   层级：topbar(20) > 侧栏(15) > 内容；#stage 始终铺满最底层。
+   ================================================================ */
+#app{
+  --v9-gap:12px;                       /* 栏与视窗边缘的基础留白 */
+  --v9-top-slot:68px;                  /* 顶栏 56px + 12px 留白 = 侧栏起始 y */
+  --v9-left-w:176px;                   /* 左栏宽度 */
+  --v9-right-w:262px;                  /* 右栏宽度 */
+  --v9-bottom-h:188px;                 /* 下栏高度：含 44px 标题头 + 内容区 */
+  --v9-bottom-gap:10px;                /* 下栏距视窗底部 */
+  /* 下栏左右边界：留白 + 相邻侧栏宽 + 留白 → 侧栏在时下栏嵌在两栏之间 */
+  --v9-left-bound:calc(var(--v9-gap) + var(--v9-left-w) + var(--v9-gap));
+  --v9-right-bound:calc(var(--v9-gap) + var(--v9-right-w) + var(--v9-gap));
+  /* 侧栏底部预留：下栏高 + 下栏距底 + 栏间距（彻底消除原有 220px 写死造成的叠压） */
+  --v9-bottom-reserve:calc(var(--v9-bottom-h) + var(--v9-bottom-gap) + var(--v9-gap));
+}
+/* 关闭状态：把对应槽位收为单侧留白，其余栏借变量自动补位扩展 */
+#app.v9-no-left{--v9-left-bound:var(--v9-gap)}
+#app.v9-no-right{--v9-right-bound:var(--v9-gap)}
+#app.v9-no-bottom{--v9-bottom-reserve:var(--v9-gap)}
+
+/* 显隐开关：只切 display，不碰 DOM / ID；与 auto-hide 的 .collapsed 互不干扰 */
+#app #leftbar.v9-panel-hidden,
+#app #rightbar.v9-panel-hidden,
+#app #bottombar.v9-panel-hidden{display:none}
+
+/* 左右栏：从顶栏下方延伸到下栏上方，不再与下栏叠压 */
+#app #leftbar,
+#app #rightbar{
+  top:var(--v9-top-slot);
+  max-height:calc(100% - var(--v9-top-slot) - var(--v9-bottom-reserve));
+}
+#app #leftbar{left:var(--v9-gap);width:var(--v9-left-w)}
+#app #rightbar{right:var(--v9-gap);width:var(--v9-right-w)}
+/* 面板更通透：让 3D 舞台透出来，backdrop-filter 保证文字可读（沉浸感） */
+#app #leftbar,#app #rightbar{
+  background:linear-gradient(160deg,rgba(18,16,28,.84),rgba(10,12,22,.80));
+}
+
+/* 下栏：嵌在左右栏之间；关闭侧栏后左右边界自动扩展到视窗边缘 */
+#app #bottombar{
+  display:flex;flex-direction:column;gap:0;
+  left:var(--v9-left-bound);right:var(--v9-right-bound);
+  bottom:var(--v9-bottom-gap);height:var(--v9-bottom-h);
+  padding:0 10px 8px;
+  background:linear-gradient(180deg,rgba(18,16,26,.90),rgba(10,10,18,.94));
+}
+.v9-bottom-body{display:flex;gap:10px;align-items:stretch;flex:1;min-height:0;min-width:0}
+
+/* 栏标题头：确立「顶栏 > 侧栏标题 > 内容」的视觉层级 */
+.v9-panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  min-height:40px;padding:0 6px 0 4px;margin:-2px 0 8px;
+  border-bottom:1px solid var(--line);
+}
+.v9-panel-head--bottom{min-height:44px;margin:0;padding:0 22px 0 10px;flex:0 0 44px}
+.v9-panel-title{
+  font-family:"Songti SC","STSong",Georgia,serif;
+  font-size:13px;font-weight:700;letter-spacing:2px;color:var(--gold2);
+  padding-left:6px;white-space:nowrap;
+}
+
+/* 统一关闭按钮：暗金线性描边 X（非 emoji），44px 触控目标，hover/focus 齐全 */
+.v9-panel-close{
+  flex:0 0 44px;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:9px;
+  color:var(--gold-deep);cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s,box-shadow .15s;
+}
+.v9-panel-close svg{
+  width:18px;height:18px;fill:none;stroke:currentColor;
+  stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;
+}
+.v9-panel-close:hover{
+  color:var(--gold2);border-color:var(--line);background:rgba(232,195,122,.10);
+  box-shadow:0 0 12px rgba(232,195,122,.18);
+}
+.v9-panel-close:active{transform:translateY(1px)}
+.v9-panel-close:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+
+/* 顶栏「面板」入口：始终可见，是关闭侧栏后唯一的重开入口 */
+.v9-panel-toggle-wrap{position:relative;display:flex;align-items:center;flex:0 0 auto}
+#v9-panel-toggle{
+  min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 10px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:9px;color:var(--txt);font-family:inherit;font-size:12px;cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s;
+}
+#v9-panel-toggle svg{
+  width:16px;height:16px;fill:none;stroke:currentColor;
+  stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;
+}
+#v9-panel-toggle:hover,
+#v9-panel-toggle[aria-expanded="true"]{
+  border-color:var(--gold);color:var(--gold2);background:rgba(232,195,122,.12);
+}
+#v9-panel-toggle:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.v9-panel-menu{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:196px;z-index:60;
+  background:linear-gradient(160deg,rgba(26,28,38,.98),rgba(14,16,26,.98));
+  border:1px solid var(--gold-deep);border-radius:12px;padding:8px;
+  box-shadow:var(--shadow),0 0 20px rgba(232,195,122,.12);
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.v9-panel-menu[hidden]{display:none}
+.v9-panel-menu-title{
+  font-size:11px;color:var(--sub);letter-spacing:1px;
+  padding:4px 8px 6px;border-bottom:1px solid var(--line);margin-bottom:4px;
+}
+.v9-panel-opt{
+  display:flex;align-items:center;gap:10px;min-height:44px;padding:0 8px;
+  border-radius:8px;font-size:13px;color:var(--txt);cursor:pointer;
+}
+.v9-panel-opt:hover{background:rgba(232,195,122,.10)}
+.v9-panel-opt input{width:16px;height:16px;margin:0;accent-color:var(--gold);cursor:pointer}
+.v9-panel-hint{
+  font-size:11px;color:var(--sub);padding:6px 8px 2px;
+  border-top:1px solid var(--line);margin-top:4px;line-height:1.6;
+}
+
+/* 窄屏：收窄侧栏与下栏，顶栏「面板」按钮只留图标，避免拥挤 */
+@media(max-width:980px){
+  #app{--v9-left-w:156px;--v9-right-w:228px}
+  .v9-panel-toggle-label{display:none}
+  #v9-panel-toggle{width:44px;padding:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .v9-panel-close,#v9-panel-toggle{transition:none}
+}

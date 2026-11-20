@@ -19,7 +19,7 @@ function skyGradient(t) {
     0.55, 0.16 + day * 0.42
   );
   const zenith = new THREE.Color().setHSL(
-    0.60, 0.55 + day * 0.15, 0.03 + day * 0.30
+    0.57, 0.45 + day * 0.12, 0.03 + day * 0.26   // 偏蓝不偏紫，降低饱和防天空发紫
   );
   const sunColor = new THREE.Color().setHSL(
     clamp(0.09 + sunY * 0.04, 0.08, 0.14), 0.65 - day * 0.45, 0.55 + day * 0.35
@@ -40,7 +40,7 @@ export function applyRealisticTime(t) {
   // 背景与雾（地平线色）
   if (eng.scene.background?.isColor) eng.scene.background.copy(g.zenith);
   if (eng.scene.fog) { eng.scene.fog.color.copy(g.horizon); eng.scene.fog.near = 45; eng.scene.fog.far = 190; }
-  eng.renderer.toneMappingExposure = 0.72 + g.day * 0.26;
+  eng.renderer.toneMappingExposure = 0.66 + g.day * 0.22;   // 上限 0.88，压住白场过曝
   return g;
 }
 

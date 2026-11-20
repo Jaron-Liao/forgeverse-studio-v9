@@ -13,7 +13,7 @@ export const QUALITY = {
   low:    { label: '流畅', bloom: false, ssao: false, smaa: false, pr: 1.0 },
   medium: { label: '标准', bloom: false, ssao: false, smaa: true,  pr: 1.25 },
   high:   { label: '高清', bloom: true,  ssao: false, smaa: true,  pr: 1.5 },
-  cinema: { label: '电影级', bloom: true, ssao: true, smaa: true, pr: 2.0 },
+  cinema: { label: '电影级', bloom: true, ssao: true, smaa: true, pr: 1.75 },
 };
 
 let composer = null, bloomPass = null, ssaoPass = null, smaaPass = null, outputPass = null;
@@ -32,15 +32,16 @@ export function createPipeline(eng, quality = 'high') {
 
   // SSAO 环境光遮蔽（最贵，仅电影级）
   ssaoPass = new SSAOPass(scene, camera, w, h);
-  ssaoPass.kernelRadius = 8;
-  ssaoPass.minDistance = 0.002;
-  ssaoPass.maxDistance = 0.1;
+  ssaoPass.kernelRadius = 12;      // 更自然的接触阴影过渡
+  ssaoPass.minDistance = 0.001;
+  ssaoPass.maxDistance = 0.12;
   ssaoPass.output = SSAOPass.OUTPUT.Default;
   ssaoPass.enabled = false;
   composer.addPass(ssaoPass);
 
   // Bloom 辉光（金属高光、霓虹、灯光发光）
-  bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.45, 0.5, 1.05);
+  // threshold 抬高到 1.35：只让真正的高光泛光，避免天空/白墙大面积过曝
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.32, 0.4, 1.35);
   bloomPass.enabled = false;
   composer.addPass(bloomPass);
 
