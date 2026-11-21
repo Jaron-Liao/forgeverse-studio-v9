@@ -665,6 +665,9 @@ export function renderManager() {
     set('[data-biome]', BIOME_LABEL[w.biome] || w.biome || '草原');
     set('[data-sync]', SYNC_LABEL[w.sync?.state] || '未开启');
     set('[data-thumb]', BIOME_MARK[w.biome] || '◆');
+    // 缩略图按生态上色（CSS 里是 .wm-thumb[data-biome=...]，此前未写入导致卡片底色空白）
+    const thumbEl = card.querySelector('[data-thumb]');
+    if (thumbEl && w.biome) thumbEl.dataset.biome = w.biome;
     const timeEl = card.querySelector('[data-opened]');
     if (timeEl) {
       timeEl.textContent = relTime(w.openedAt || w.updatedAt);

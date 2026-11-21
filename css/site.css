@@ -79,7 +79,7 @@ h3 { font-size: 18px; }
   min-height: 44px; padding: 10px 22px; border-radius: 8px;
   font-size: 15px; font-family: inherit; cursor: pointer; transition: transform .15s, box-shadow .15s, filter .15s;
 }
-.site-btn-primary { background: linear-gradient(135deg, var(--cinnabar), var(--gold)); color: var(--txt); font-weight: 800; border: 0; }
+.site-btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #04241B; font-weight: 800; border: 0; }
 .site-btn-primary:hover { filter: brightness(1.08); box-shadow: 0 0 20px var(--gold-glow); }
 .site-btn-primary:active { transform: translateY(1px); }
 .site-btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--txt); }

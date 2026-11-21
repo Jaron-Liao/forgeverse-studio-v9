@@ -42,6 +42,7 @@ import {
   getVoxelState, serializeVoxels, loadVoxels, clearVoxels, setVoxelMaterial, getVoxelMaterial, VOXEL_PALETTE,
 } from './voxel.js';
 import { initPhysics, registerBody, unregisterBody, setPhysicsEnabled, isPhysicsEnabled, getBodyCount } from './physics.js';
+import { initGuide } from './guide.js';
 
 const $ = id => document.getElementById(id);
 const MODE_TXT = { select: '选择', paint: '绘画', sculpt: '雕刻', terrain: '地貌' };
@@ -178,6 +179,8 @@ function boot() {
   wireUI();
   wirePanelToggles();       // FV-A1：面板关闭/重开接线（只做显隐，不碰渲染与 bus）
   wireFocusMode();          // v10：专注模式（一次性跳过所有提示）
+  wireGuideBridge();        // v10：创作向导配置落地（面板/画质/时段）
+  initGuide();              // v10：30 问引导（可跳过全部，随时补填）
   bus.on('objects', () => { renderTree(); updateHUD(); const tc = $('treeCount'); if (tc) tc.textContent = App.objects.length; });
   bus.on('select', () => renderTree());
   window.addEventListener('wb:transform', updateInspector);
@@ -476,6 +479,14 @@ function wireUI() {
   // world:apply-config 事件：应用初始模式的 UI 表现
   window.addEventListener('world:apply-config', e => applyWorldUiConfig(e.detail?.config || {}));
 
+  // world:open 事件：世界载入成功后统一进入工作区
+  // （此前卡片点击只 openWorld 不切页，会停在管理页并反复提示「世界已载入」）
+  window.addEventListener('world:open', () => {
+    enterWorkspace();
+    // 画布在 hidden 容器里尺寸为 0，切页后补一次尺寸校正
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  });
+
   // 自动昼夜（同步天空）
   let autoT = 0.55;
   App.engine.onUpdate((dt) => {
@@ -523,6 +534,55 @@ function toggleFocusMode() {
 }
 
 // ---- 体素沙盒：模式切换 / 材质 / 物理开关（P0-3/4/5/6）----
+// ---- v10 创作向导：把配置落到现有面板 / 画质 / 时段，不新增一套状态 ----
+const QUALITY_TEXT = { low: '流畅', medium: '标准', high: '高清', cinema: '电影级' };
+function wireGuideBridge() {
+  window.addEventListener('fv:guide-apply', e => {
+    const d = e.detail || {};
+    const cfg = d.cfg || {};
+
+    // 1) 面板显隐：走既有 setPanel（含 localStorage 持久化与勾选态同步）
+    if (d.panels) {
+      Object.keys(PANEL_BARS).forEach(k => {
+        if (typeof d.panels[k] === 'boolean' && panelState[k] !== d.panels[k]) setPanel(k, d.panels[k]);
+      });
+    }
+
+    // 2) 画质：只在真的不同时切，避免重复重建后处理管线
+    if (d.quality && QUALITY[d.quality] && App.quality !== d.quality) {
+      setQuality(d.quality);
+      applyPerfProfile(d.quality);
+      const qb = $('btnQuality');
+      if (qb) qb.textContent = '🎬 ' + (QUALITY_TEXT[d.quality] || QUALITY[d.quality].label);
+    }
+
+    // 3) 时段：同步滑杆与真实光照
+    if (typeof d.time === 'number') {
+      const ts = $('timeSlider');
+      const now = ts ? +ts.value / 100 : 0.55;
+      if (Math.abs(now - d.time) > 0.01) {
+        if (ts) ts.value = Math.round(d.time * 100);
+        if (App.realism !== false) applyRealisticTime(d.time);
+        else { App.engine?.setTimeOfDay?.(d.time); updateSky(d.time); }
+      }
+    }
+
+    // 4) 新建世界配置页的默选项（生态 / 画质段选），复用既有点击逻辑
+    const bBtn = document.querySelector(`#wcBiomes [data-biome-switch="${cfg.biome}"]`);
+    if (bBtn && !bBtn.classList.contains('active')) bBtn.click();
+    const qBtn = document.querySelector(`#wcQuality [data-quality="${d.quality}"]`);
+    if (qBtn && !qBtn.classList.contains('active')) qBtn.click();
+    if ($('wcTimeOfDay') && typeof d.time === 'number') {
+      $('wcTimeOfDay').value = Math.round(d.time * 100);
+      if ($('wcTimeOut')) $('wcTimeOut').textContent = d.time > 0.7 ? '黄昏' : d.time < 0.3 ? '清晨' : '正午';
+    }
+
+    // 5) 首屏 C 位：只切检查器标签，不夺焦点、不打断操作
+    if (cfg.hero === 'assets' && panelState.left === false) setPanel('left', true);
+    if (cfg.hero === 'stat') setPanel('bottom', true);
+  });
+}
+
 function wireVoxelTools() {
   const modeBtns = ['v9-mode-free', 'v9-mode-voxel'];
   const tools = $('v9-voxel-tools');
@@ -638,6 +698,10 @@ function wireManagerToolbar() {
     btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true');
     box.dataset.layout = btn.dataset.layout;
   });
+
+  // 首屏渲染早于本监听器绑定，先补一次计数（否则「共 0 个世界」与卡片数不符）
+  const firstCount = $('wmWorldCount');
+  if (firstCount) firstCount.textContent = listWorlds().length;
 
   // world:list 后应用筛选/排序/搜索 + 计数
   window.addEventListener('world:list', e => {

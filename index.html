@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ForgeVerse · 3D 造物工作台</title>
 <link rel="manifest" href="manifest.webmanifest" />
-<meta name="theme-color" content="#e8c37a" />
+<meta name="theme-color" content="#10B981" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<link rel="stylesheet" href="css/3d.css" />
+<link rel="stylesheet" href="css/3d.css?v=10.1.6" />
+<link rel="stylesheet" href="css/guide.css?v=10.1.6" />
 <!-- v9 工作台新增：仅本页生效，全部类/ID 以 v9- 前缀，变量复用 3d.css :root -->
 <style>
 .v9-modebar{position:absolute;top:68px;left:50%;transform:translateX(-50%);z-index:16;
@@ -139,6 +140,8 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
       <label class="mini">☀<input id="timeSlider" type="range" min="0" max="100" value="55" /></label>
       <button id="btnQuality" class="ghost qbtn" title="画质档位">🎬 高清</button>
       <button id="btnFP" class="icon" title="第一人称漫游">🚶</button>
+      <!-- v10 创作向导入口：随时补填 30 问配置 -->
+      <button id="fv-guide-open" class="ghost" title="创作向导 · 30 问配置（可跳过）"><span class="fv-guide-open-icon" aria-hidden="true">🧭</span><span class="fv-guide-open-label">向导</span></button>
       <button id="btnHelp" class="icon" title="帮助">?</button>
       <button id="btnGrid" class="icon active" title="网格">▦</button>
       <button id="btnFog" class="icon active" title="雾">🌫</button>
@@ -506,6 +509,9 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
 
   <div id="toast"></div>
 
+  <!-- v10 创作向导：内容由 js/guide.js 渲染（默认 hidden，不占位、不拦截点击） -->
+  <div id="fv-guide" class="fv-guide" hidden></div>
+
   <!-- 帮助 -->
   <div id="helpModal" class="modal hidden">
     <div class="card help-card">
@@ -513,6 +519,7 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
       <div class="help-grid">
         <div><b>视角</b><span>左键拖动旋转 · 滚轮缩放 · 右键平移</span></div>
         <div><b>面板</b><span>[ 左栏 · ] 右栏 · F2 下栏（顶栏「面板」也可重开）</span></div>
+        <div><b>向导</b><span>🧭 30 问配置 · 可「跳过全部」，之后也能补填</span></div>
         <div><b>变换</b><span>W 移动 · E 旋转 · R 缩放</span></div>
         <div><b>删除</b><span>Delete / Backspace</span></div>
         <div><b>撤销</b><span>Ctrl+Z · 重做 Ctrl+Shift+Z</span></div>
@@ -548,7 +555,7 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
       <div class="wm-top-actions">
         <span class="wm-count">共 <b id="wmWorldCount">0</b> 个世界</span>
         <button id="wmImportSave" class="ghost" title="从 JSON 文件导入存档">导入存档</button>
-        <button id="wmSettings" class="icon" title="设置" aria-label="设置">⚙</button>
+        <button id="wmSettings" class="icon" title="设置 · 创作向导（30 问补填）" aria-label="设置 · 创作向导">⚙</button>
       </div>
     </header>
 

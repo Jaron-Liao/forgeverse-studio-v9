@@ -1,3 +1,13 @@
 {
-  "type": "module"
+  "name": "forgeverse-studio",
+  "version": "10.1.1",
+  "private": true,
+  "type": "module",
+  "description": "ForgeVerse · 3D 造物工作台（纯静态）",
+  "scripts": {
+    "test": "node tests/guide.smoke.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  }
 }
