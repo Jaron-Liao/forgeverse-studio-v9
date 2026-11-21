@@ -105,9 +105,11 @@ export function createEngine(container) {
   loop();
 
   function resize() {
-    if (resizeFn) { resizeFn(); return; }
     const w = container.clientWidth, h = container.clientHeight;
     camera.aspect = w / h; camera.updateProjectionMatrix();
+    // 必须把容器尺寸显式传下去：viewport.resize 缺参时会回退读画布自身宽度，
+    // 那样画布永远停在初始尺寸，窗口变大后右侧留白。
+    if (resizeFn) { resizeFn(w, h); return; }
     renderer.setSize(w, h);
   }
   window.addEventListener('resize', resize);

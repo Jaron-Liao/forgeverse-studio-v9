@@ -1,7 +1,7 @@
 // ForgeVerse Service Worker：离线缓存核心资源，支持手机安装后离线打开
-const CACHE = 'forgeverse-v7';
+const CACHE = 'forgeverse-v8';
 const ASSETS = [
-  './', './index.html', './css/3d.css', './css/guide.css', './manifest.webmanifest',
+  './', './index.html', './css/3d.css', './css/guide.css', './css/theme-v11.css', './manifest.webmanifest',
   './js/main.js', './js/state.js', './js/engine.js', './js/objects.js',
   './js/guide.js', './js/guide-data.js',
   './js/world.js', './js/biomes.js', './js/biome-pro.js', './js/terrain-edit.js',

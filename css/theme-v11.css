@@ -1,0 +1,442 @@
+/* ============================================================
+   ForgeVerse · Theme v11 — 「Emerald Atelier」深祖母绿 × 骨白
+   ------------------------------------------------------------
+   设计依据（ima 知识库「超级学习机」2025-08 UI 方法论）：
+   1) 拒绝「AI 模板感」：不做蓝紫渐变、不做高饱和撞色渐变按钮；
+   2) 用设计语汇分层：画布 / 表面 / 墨色 / 单一强调色，四层到位；
+   3) 强调色面积 ≤ 8%，其余交给中性层次、留白与 1px 发丝边。
+
+   色相统一 158°（翡翠→祖母绿），600 为主色，只用于「主操作 / 选中 / 关键数值」。
+   本文件在 3d.css、guide.css 之后加载，作为唯一的主题收口层。
+   变量名与 v10 完全一致，不动任何 DOM 结构与交互逻辑。
+   ============================================================ */
+
+:root{
+  /* 中性层：骨白纸面（低彩度、微微偏绿，避免纯白刺眼） */
+  --bg:#F6F7F3;
+  --surface:#FFFFFF;
+  --surface-2:#F1F4EF;
+  --panel:rgba(255,255,255,.90);
+  --panel2:#F1F4EF;
+  --line:rgba(11,40,30,.10);
+  --line-strong:rgba(11,40,30,.20);
+  --hair:rgba(11,40,30,.08);
+
+  /* 墨色层 */
+  --txt:#0B1A14;
+  --sub:#5E7268;
+
+  /* 强调层：单一色相 158° 阶梯 */
+  --acc:#0B6B4B;        /* 600 主色 */
+  --acc2:#0F8A62;       /* 500 */
+  --acc-soft:#E8F2EC;   /* 100 选中底 */
+  --accent-ink:#0A5039; /* 700 小字墨（AA） */
+  --gold:#0B6B4B;
+  --gold2:#0F8A62;
+  --gold-deep:#06231A;
+  --gold-glow:rgba(23,169,122,.18);
+  --mint:#9FDCC6;
+  --jade:#0F8A62;
+  --neon:#17A97A;
+  --violet:#0F8A62;
+  --sakura:#D8EEE4;
+  --sky:#CFE6E0;
+
+  /* 语义色：降饱和，不用荧光 */
+  --ok:#0F8A62;
+  --warn:#A9711F;
+  --danger:#A4453C;
+  --cinnabar:#A4453C;
+
+  /* 阴影：冷绿墨投影，两层（贴地 + 弥散） */
+  --shadow:0 18px 44px rgba(6,35,26,.10),0 2px 6px rgba(6,35,26,.05);
+  --shadow-sm:0 1px 2px rgba(6,35,26,.04),0 6px 16px rgba(6,35,26,.05);
+  --shadow-lift:0 24px 56px rgba(6,35,26,.14),0 4px 10px rgba(6,35,26,.06);
+
+  --r-sm:9px; --r-md:12px; --r-lg:16px;
+}
+
+/* ---------- 基础层 ---------- */
+body{background:var(--bg);color:var(--txt);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+/* ---------- 顶栏 ---------- */
+#topbar{
+  background:rgba(255,255,255,.86);
+  backdrop-filter:blur(16px) saturate(1.08);
+  border-bottom:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+.logo{color:var(--acc);filter:drop-shadow(0 2px 6px rgba(11,107,75,.22))}
+.bs{color:var(--sub);letter-spacing:.4px}
+.modes{background:var(--surface-2);border:1px solid var(--hair);padding:4px;border-radius:11px}
+.mode{color:var(--sub);border-radius:8px;padding:7px 12px}
+.mode:hover{color:var(--txt);background:rgba(11,40,30,.04)}
+.mode.active{background:var(--acc);color:#F2FBF6;font-weight:700;
+  box-shadow:0 6px 14px rgba(11,107,75,.22),inset 0 1px 0 rgba(255,255,255,.16)}
+
+/* ---------- 控件 ---------- */
+.ghost{background:var(--surface);border:1px solid var(--line);color:var(--txt);
+  border-radius:var(--r-sm);box-shadow:var(--shadow-sm);transition:.18s ease}
+.ghost:hover{border-color:rgba(11,107,75,.38);color:var(--accent-ink);background:#FBFCFA}
+.icon{background:var(--surface);border:1px solid var(--line);color:var(--sub);border-radius:var(--r-sm);
+  box-shadow:var(--shadow-sm);transition:.18s ease}
+.icon:hover{border-color:rgba(11,107,75,.38);color:var(--accent-ink);background:#FBFCFA}
+.icon.active{background:var(--acc-soft);border-color:rgba(11,107,75,.42);color:var(--accent-ink)}
+
+/* 主按钮：实色深绿 + 顶部内高光，不用渐变 */
+.primary,.cta-gold{
+  background:var(--acc);
+  color:#F2FBF6;
+  border:1px solid #095A3F;
+  border-radius:var(--r-md);
+  font-weight:700;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px rgba(11,107,75,.18);
+  transition:transform .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.primary:hover,.cta-gold:hover{background:#095A3F;filter:none;transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 30px rgba(11,107,75,.24)}
+.primary:active,.cta-gold:active{transform:translateY(0) scale(.995);background:#074A34}
+
+/* 输入类统一 */
+#topbar input,.wm-search,.wm-filters select,.wc-field select,.wc-field input,textarea,input[type="search"]{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);
+  color:var(--txt);box-shadow:none;transition:.18s ease}
+#topbar input:focus,.wm-search:focus,.wm-filters select:focus{outline:none;
+  border-color:rgba(11,107,75,.5);box-shadow:0 0 0 3px rgba(11,107,75,.10)}
+
+/* ---------- 工作台三栏 ---------- */
+#leftbar,#rightbar{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);backdrop-filter:blur(10px)}
+.panel h4,.info-col h4{color:var(--accent-ink);letter-spacing:1.2px}
+.lib button,.lib2 button{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--txt);transition:.16s ease}
+.lib button:hover,.lib2 button:hover{border-color:rgba(11,107,75,.34);color:var(--accent-ink);
+  background:var(--acc-soft);box-shadow:none;transform:translateY(-1px)}
+.lib2 button.active{outline:1.5px solid var(--acc);background:var(--acc-soft);color:var(--accent-ink)}
+.it.active{background:var(--acc-soft);color:var(--accent-ink);border-color:rgba(11,107,75,.28)}
+.t-head{color:var(--accent-ink);letter-spacing:1.4px}
+.t-add button{background:var(--acc);color:#F2FBF6;border-radius:8px}
+.xpbar i{background:var(--acc)}
+#bottombar{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);backdrop-filter:blur(12px)}
+.themes button.active{border-color:var(--acc);color:var(--accent-ink);
+  box-shadow:0 0 0 3px rgba(11,107,75,.10)}
+
+/* 轻提示：墨绿底、浅字，比白底描边更稳 */
+.toast-i{background:#07281D;border:1px solid rgba(159,220,198,.22);color:#EAF5EF;
+  border-radius:var(--r-md);box-shadow:0 18px 40px rgba(4,18,13,.35);font-weight:500}
+
+/* ============================================================
+   世界管理页 #worldManager
+   ============================================================ */
+.wm-page{background:var(--bg)}
+
+/* 背景：去掉彩色光斑与雾，只留一层极淡的顶部天光 + 底部收边 */
+.wm-bg{background:var(--bg)}
+.wm-bg-glow{background:radial-gradient(120% 70% at 50% -18%,rgba(23,169,122,.08),transparent 62%)}
+.wm-bg-far,.wm-bg-mid,.wm-bg-mist{display:none}
+.wm-bg-vignette{background:
+  linear-gradient(180deg,rgba(255,255,255,.55),transparent 26%),
+  radial-gradient(140% 110% at 50% 0%,transparent 58%,rgba(6,35,26,.045) 100%)}
+/* 纸面颗粒：3% 噪点，压掉「数码平面感」 */
+.wm-page::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E")}
+
+.wm-top{min-height:96px;padding:0 48px;border-bottom:1px solid var(--hair);
+  background:rgba(255,255,255,.55);backdrop-filter:blur(8px)}
+.wm-brand{gap:14px}
+.wm-sigil{font-size:15px;color:var(--acc);filter:none;
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(11,107,75,.24);border-radius:10px;background:var(--acc-soft)}
+.wm-h0{font-family:"Songti SC","STSong","SimSun",serif;font-size:27px;line-height:1.25;
+  letter-spacing:2px;font-weight:700;color:var(--txt);
+  background:none;-webkit-text-fill-color:currentColor;background-clip:border-box}
+.wm-subline{font-size:11.5px;color:var(--sub);letter-spacing:2.6px;margin-top:4px}
+.wm-count{font-size:12.5px;color:var(--sub);letter-spacing:.3px}
+.wm-count b{color:var(--accent-ink);font-size:15px;font-variant-numeric:tabular-nums;margin:0 2px}
+
+/* 主行动：标题贴左、按钮按内容宽度，不再通栏拉长 */
+.wm-hero{display:grid;grid-template-columns:1fr auto;align-items:end;gap:32px;
+  padding:40px 48px 26px;max-width:none}
+.wm-hero-title{margin:0;font-family:"Songti SC","STSong","SimSun",serif;font-size:33px;line-height:1.22;
+  font-weight:700;letter-spacing:1.6px;color:var(--txt);white-space:nowrap}
+.wm-hero-title::before{content:'';display:block;width:34px;height:3px;border-radius:2px;
+  background:var(--acc);margin-bottom:16px}
+.wm-create{width:auto;margin:0;padding:13px 24px;font-size:14.5px;letter-spacing:.6px;
+  border-radius:11px;white-space:nowrap}
+
+/* 工具条：一整块白卡，控件内嵌 */
+.wm-tools{padding:0 48px 20px;gap:12px;align-items:center}
+.wm-layouts{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:4px;gap:2px;box-shadow:var(--shadow-sm)}
+.wm-layout{color:var(--sub);padding:7px 13px;border-radius:7px;font-size:12.5px;transition:.16s ease}
+.wm-layout:hover{color:var(--txt);background:var(--surface-2)}
+.wm-layout.active{background:var(--acc-soft);color:var(--accent-ink);font-weight:600;
+  box-shadow:none;border:0}
+.wm-filters{gap:8px;align-items:center}
+.wm-filters select{height:36px;padding:0 12px;font-size:12.5px;border-radius:9px;
+  color:var(--txt);box-shadow:var(--shadow-sm);cursor:pointer}
+.wm-search{height:36px;min-width:210px;padding:0 12px;font-size:12.5px;border-radius:9px;
+  box-shadow:var(--shadow-sm)}
+.wm-search::placeholder{color:#93A69C}
+
+/* 卡片网格 */
+.wm-worlds{padding:0 48px 28px;gap:20px}
+.wm-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);transition:transform .2s cubic-bezier(.22,.61,.36,1),box-shadow .2s,border-color .2s}
+.wm-card:hover{transform:translateY(-3px);border-color:rgba(11,107,75,.30);
+  box-shadow:var(--shadow-lift)}
+.wm-card:hover .wm-thumb{filter:saturate(1.02) brightness(1.01)}
+.wm-card.selected{border:1.5px solid var(--acc);box-shadow:0 0 0 3px rgba(11,107,75,.12),var(--shadow-lift)}
+.wm-card.selected::after{content:'选';background:var(--acc);color:#F2FBF6;border:0;border-radius:8px;
+  width:24px;height:24px;font-size:12px;transform:none}
+.wm-worlds.has-selection .wm-card:not(.selected){filter:saturate(.6) opacity(.72)}
+
+/* 缩略图：低饱和生态色 + 底部渐隐 + 居中图腾章 */
+.wm-thumb{height:150px;background-color:var(--surface-2);
+  background-image:linear-gradient(150deg,#E9F1EC,#DCE9E1)}
+.wm-thumb[data-thumb]{font-family:"Songti SC","STSong",serif;font-size:17px;letter-spacing:0;
+  width:44px;height:44px;margin:auto;border-radius:50%;
+  background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.9);
+  color:var(--accent-ink);text-shadow:none;box-shadow:0 6px 16px rgba(6,35,26,.10);
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.wm-thumb::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 55%,rgba(6,35,26,.05) 100%)}
+.wm-thumb--new{background:var(--surface-2);border-bottom:1px dashed var(--line)}
+.wm-thumb--new span{font-size:26px;color:var(--acc);opacity:.55;font-weight:300}
+
+.wm-card-body{padding:14px 16px 15px}
+.wm-card-name{font-size:15px;font-weight:600;letter-spacing:.4px;color:var(--txt);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm-card-meta{font-size:11.5px;color:var(--sub);margin-top:5px;letter-spacing:.2px}
+.wm-sync{font-size:11.5px;margin-top:9px;letter-spacing:.2px}
+.wm-sync[data-sync="synced"]{color:var(--ok)}
+.wm-more{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  color:var(--sub);box-shadow:var(--shadow-sm);opacity:0}
+.wm-card:hover .wm-more{opacity:1}
+.wm-more:hover{color:var(--accent-ink);border-color:rgba(11,107,75,.32)}
+
+/* 新建卡：虚线，悬停转为实线主色 */
+.wm-card--new,.wm-card--new:hover{border:1.5px dashed rgba(11,40,30,.20);background:rgba(255,255,255,.6);
+  box-shadow:none}
+.wm-card--new:hover{border-color:rgba(11,107,75,.45);background:var(--surface);box-shadow:var(--shadow-sm)}
+/* 世界数为 0 时只保留空状态，避免「新建卡 + 空状态」双份 CTA */
+.wm-worlds:not(:has(.wm-card:not(.wm-card--new))) #wmNewCard{display:none}
+
+/* 生态色：去荧光，走莫兰迪绿阶 */
+.wm-thumb[data-biome="grass"],.biome-grass .wm-thumb{background-image:linear-gradient(150deg,#DCEADF,#A9CFB8)}
+.wm-thumb[data-biome="snow"],.biome-snow .wm-thumb{background-image:linear-gradient(150deg,#E9F1F4,#C6D9E0)}
+.wm-thumb[data-biome="desert"],.biome-desert .wm-thumb{background-image:linear-gradient(150deg,#EFE6D4,#D6C3A2)}
+.wm-thumb[data-biome="cyber"],.biome-cyber .wm-thumb{background-image:linear-gradient(150deg,#D3E5E1,#8FB8B0)}
+
+/* 列表 / 时间轴布局的贴边修正 */
+.wm-worlds[data-layout="list"] .wm-card,.wm-worlds[data-layout="timeline"] .wm-card{border-radius:var(--r-md)}
+.wm-worlds[data-layout="list"] .wm-thumb[data-thumb],
+.wm-worlds[data-layout="timeline"] .wm-thumb[data-thumb]{width:34px;height:34px;font-size:14px}
+.wm-worlds[data-layout="timeline"] .wm-card::before{background:var(--surface);border:1.5px solid var(--acc);
+  box-shadow:0 0 0 4px var(--bg)}
+
+/* 空状态 */
+.wm-empty{gap:6px}
+.wm-empty-seal{width:52px;height:52px;border:1.5px solid rgba(11,40,30,.22);border-radius:12px;
+  color:var(--accent-ink);font-size:22px;transform:none;margin-bottom:16px;background:var(--surface)}
+.wm-empty h2{font-size:23px;letter-spacing:1.6px;color:var(--txt);font-family:"Songti SC","STSong",serif}
+.wm-empty p{font-size:13px;color:var(--sub);margin:0 0 20px;letter-spacing:.3px}
+.wm-empty .cta-gold{padding:11px 24px;font-size:14px;width:auto}
+
+/* 状态条 */
+.wm-status{min-height:54px;padding:0 48px;border-top:1px solid var(--hair);
+  background:rgba(255,255,255,.66);backdrop-filter:blur(8px);font-size:11.5px;color:var(--sub);
+  letter-spacing:.2px}
+.wm-storage b{color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.wm-bar{background:rgba(11,40,30,.08)}
+.wm-bar>i{background:var(--acc)}
+
+/* ============================================================
+   新建世界配置页 #worldConfig
+   ============================================================ */
+.wc-page{background:var(--bg)}
+.wc-top{min-height:84px;padding:0 48px;border-bottom:1px solid var(--hair);background:rgba(255,255,255,.55)}
+.wc-group{border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 26px 10px;
+  background:var(--surface);box-shadow:var(--shadow-sm);
+  background-image:none}
+.wc-group legend{font-family:"Songti SC","STSong",serif;font-size:16px;letter-spacing:1.6px;
+  color:var(--accent-ink);padding:0 10px}
+.wc-inline output{color:var(--accent-ink)}
+.wc-bswatch{border-radius:8px}
+
+/* ============================================================
+   创作向导层 #fv-guide —— 只改强调变量，布局与交互不变
+   ============================================================ */
+#fv-guide{--gv-ink-acc:#0A5039}
+#fv-guide .gv-btn--primary{background:var(--acc);color:#F2FBF6;border-color:#095A3F}
+#fv-guide .gv-btn--primary:hover{background:#095A3F}
+#fv-guide .gv-mark{background:var(--acc)}
+#fv-guide .gv-chip{background:var(--acc-soft);border-color:rgba(11,107,75,.18);color:var(--accent-ink)}
+
+/* ============================================================
+   夜间模式：只换表面，强调色仍由用户所选绿系皮肤决定
+   ============================================================ */
+body[data-fv-theme="night"]{
+  --surface:#12241C; --surface-2:#0E1D17;
+  --panel:rgba(18,36,28,.92); --panel2:#0E1D17;
+  --line:rgba(159,220,198,.14); --line-strong:rgba(159,220,198,.24); --hair:rgba(159,220,198,.10);
+  --bg:#0B1712; --txt:#E7F3ED; --sub:#9DB6AA;
+  --accent-ink:#7FEBC5; --acc-soft:rgba(23,169,122,.16);
+  --shadow:0 18px 44px rgba(0,0,0,.42),0 2px 6px rgba(0,0,0,.28);
+  --shadow-sm:0 6px 16px rgba(0,0,0,.30);
+  --shadow-lift:0 24px 56px rgba(0,0,0,.5),0 4px 10px rgba(0,0,0,.3);
+}
+body[data-fv-theme="night"] #topbar{background:rgba(11,23,18,.86);border-bottom-color:var(--line)}
+body[data-fv-theme="night"] .ghost,
+body[data-fv-theme="night"] .icon,
+body[data-fv-theme="night"] .wm-card,
+body[data-fv-theme="night"] .wc-group{background:var(--surface);color:var(--txt)}
+/* 夜间强调色仍是深绿底，文字必须保持近白（深字会掉到 2.9:1） */
+body[data-fv-theme="night"] .mode.active,
+body[data-fv-theme="night"] .primary,
+body[data-fv-theme="night"] .cta-gold{color:#F2FBF6}
+body[data-fv-theme="night"] .wm-h0{color:var(--txt)}
+body[data-fv-theme="night"] .wm-top,
+body[data-fv-theme="night"] .wm-status{background:rgba(11,23,18,.72)}
+body[data-fv-theme="night"] .wm-bg-vignette{background:
+  linear-gradient(180deg,rgba(159,220,198,.04),transparent 22%),
+  radial-gradient(140% 110% at 50% 0%,transparent 52%,rgba(0,0,0,.30) 100%)}
+body[data-fv-theme="night"] .toast-i{background:#04120D;border-color:rgba(159,220,198,.2)}
+
+/* ============================================================
+   响应式 & 动效克制
+   ============================================================ */
+@media(max-width:1200px){
+  .wm-hero{padding:30px 28px 20px;gap:20px}
+  .wm-hero-title{font-size:27px}
+  .wm-top,.wm-tools,.wm-worlds,.wm-status{padding-left:28px;padding-right:28px}
+}
+@media(max-width:900px){
+  .wm-hero{grid-template-columns:1fr;align-items:start;gap:16px}
+  .wm-hero-title{white-space:normal}
+  .wm-create{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){
+  .wm-card,.primary,.cta-gold,.ghost{transition:none}
+  .wm-card:hover,.primary:hover,.cta-gold:hover{transform:none}
+}
+
+/* ============================================================
+   细节收口 v11.1
+   ============================================================ */
+
+/* 空列表时折叠卡片区，让「还没有世界」在剩余空间里真正居中，
+   否则上半屏会留下一大片无意义空白 */
+.wm-worlds:not(:has(.wm-card:not(.wm-card--new))){flex:0 0 auto;min-height:0;padding-top:0;padding-bottom:0}
+
+/* 轻提示：对齐新主题，并抬高到底部状态条之上（原来压住「本地存储」） */
+body:has(#worldManager:not(.hidden)) .gv-note{bottom:74px}
+.gv-note{background:var(--surface);border:1px solid var(--line);color:var(--txt);
+  border-radius:12px;box-shadow:var(--shadow);font-size:12px;letter-spacing:.2px;
+  padding:9px 10px 9px 13px}
+.gv-note-ico{color:var(--acc)}
+.gv-note-act{background:var(--acc);border:1px solid #095A3F;color:#F2FBF6;font-weight:600;
+  border-radius:8px;padding:5px 10px;transition:.16s ease}
+.gv-note-act:hover{background:#095A3F}
+.gv-note-x{color:var(--sub);border-radius:6px}
+.gv-note-x:hover{background:var(--surface-2);color:var(--txt)}
+body[data-fv-theme="night"] .gv-note{background:var(--surface);border-color:var(--line);color:var(--txt)}
+body[data-fv-theme="night"] .gv-note-act{background:var(--acc);color:#F2FBF6}
+
+/* 顶栏向导入口：单色星标，不抢主操作 */
+#fv-guide-open .fv-guide-open-icon{color:var(--acc);font-size:13px}
+#fv-guide-open:hover .fv-guide-open-icon{color:var(--accent-ink)}
+
+/* ---- 提示：从视口正中移到右上，最多 3 条，深墨底浅字 ---- */
+#toast{top:66px;left:auto;right:18px;transform:none;align-items:flex-end;gap:8px}
+.toast-i{background:rgba(7,40,29,.95);border:1px solid rgba(159,220,198,.20);color:#EAF5EF;
+  border-radius:10px;padding:8px 14px;font-size:12.5px;letter-spacing:.2px;
+  box-shadow:0 16px 36px rgba(4,18,13,.34);backdrop-filter:blur(6px)}
+#toast .toast-i:nth-last-child(n+4){display:none}
+
+/* ---- 收起的侧栏：只留把手，别让面板文字从缝里竖排冒出来 ---- */
+#leftbar.auto-hide.collapsed > *:not(.rail-handle),
+#rightbar.auto-hide.collapsed > *:not(.rail-handle){visibility:hidden}
+.rail-handle{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  color:var(--accent-ink);box-shadow:var(--shadow-sm);opacity:1;width:24px;height:56px;font-size:11px}
+.rail-handle:hover{background:var(--acc-soft);border-color:rgba(11,107,75,.3)}
+
+/* ---- 配置页：把通栏 CTA 收回成按钮，色板同步降饱和 ---- */
+.wc-actions{padding:18px 48px 28px;border-top:1px solid var(--hair);
+  background:rgba(255,255,255,.66);backdrop-filter:blur(8px)}
+.wc-actions .cta-gold{width:auto;min-width:220px;padding:13px 40px;font-size:15px;letter-spacing:.6px}
+.wc-bswatch{height:42px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(6,35,26,.06)}
+.biome-grass .wc-bswatch{background:linear-gradient(150deg,#D9EADC,#93C4A6)}
+.biome-snow .wc-bswatch{background:linear-gradient(150deg,#E9F1F4,#BCD4DD)}
+.biome-desert .wc-bswatch{background:linear-gradient(150deg,#F0E5CF,#D2BA92)}
+.biome-cyber .wc-bswatch{background:linear-gradient(150deg,#D3E6E2,#7EAEA6)}
+.wc-biome.selected,.wc-biome.active{border-color:var(--acc);background:var(--acc-soft)}
+.wc-biome.selected .wc-bswatch,.wc-biome.active .wc-bswatch{filter:none}
+
+/* ---- 创作向导：图标去彩，只留墨色，避免红橙蓝混进绿系 ---- */
+.gv-ch-n{font-family:"Songti SC","STSong",serif;font-size:12px;font-weight:700;
+  color:var(--accent-ink);margin-right:3px;letter-spacing:0}
+.gv-ch.on .gv-ch-n{color:var(--acc)}
+.gv-emo{filter:grayscale(1) contrast(.85) opacity(.62)}
+.gv-opt.on .gv-emo,.gv-opt:hover .gv-emo{filter:grayscale(1) contrast(.95) opacity(.8)}
+.gv-intro-pet{filter:saturate(.92)}
+/* 「默认」标记不再用琥珀色：中性底 + 灰字，避免绿色系统里冒出第三种颜色 */
+.gv-badge-miss{background:var(--surface-2,#F1F4EF);border:1px solid var(--line);color:var(--sub);font-weight:600}
+#fv-guide[data-light="night"] .gv-badge-miss{background:rgba(159,220,198,.10);
+  border-color:rgba(159,220,198,.22);color:#9DB6AA}
+.gv-set-btn{border-radius:7px}
+
+/* 引导层令牌整体换到 v11 色阶（覆盖 guide.css 的 day/dusk/night 三档） */
+#fv-guide[data-light="day"]{
+  --gv-s1:#FFFFFF; --gv-s2:#F7F8F5; --gv-ink:#0B1A14; --gv-muted:#5E7268;
+  --gv-line:rgba(11,40,30,.10); --gv-line-strong:rgba(11,40,30,.20);
+  --gv-fill:#0B6B4B; --gv-fill-2:#0F8A62; --gv-ink-acc:#0A5039; --gv-soft:#E8F2EC;
+  --gv-shadow:0 30px 72px rgba(6,35,26,.16),0 2px 8px rgba(6,35,26,.05);
+  --gv-opt:#FFFFFF; --gv-opt-hover:#F7FAF7; --gv-chip:#F1F4EF;
+  --gv-backdrop:rgba(243,245,241,.90);
+}
+#fv-guide[data-light="dusk"]{
+  --gv-s1:#FFFEFB; --gv-s2:#F7F6EF; --gv-ink:#16261E; --gv-muted:#4E6157;
+  --gv-line:rgba(11,40,30,.12); --gv-line-strong:rgba(11,40,30,.22);
+  --gv-fill:#0B6B4B; --gv-fill-2:#0F8A62; --gv-ink-acc:#0A5039; --gv-soft:#EEF0E4;
+  --gv-shadow:0 30px 68px rgba(40,44,30,.18),0 2px 8px rgba(40,44,30,.06);
+  --gv-opt:#FFFEFB; --gv-opt-hover:#FAFAF3; --gv-chip:#F2F1E7;
+  --gv-backdrop:rgba(247,246,240,.92);
+}
+#fv-guide[data-light="night"]{
+  --gv-s1:#13261E; --gv-s2:#0C1A14; --gv-ink:#E7F3ED; --gv-muted:#9DB6AA;
+  --gv-line:rgba(159,220,198,.16); --gv-line-strong:rgba(159,220,198,.28);
+  --gv-fill:#2FBF8E; --gv-fill-2:#4FD3A4; --gv-ink-acc:#7FEBC5; --gv-soft:rgba(47,191,142,.18);
+  --gv-opt:rgba(19,38,30,.94); --gv-opt-hover:rgba(28,52,42,.96); --gv-chip:rgba(159,220,198,.10);
+  --gv-backdrop:rgba(5,14,10,.86);
+}
+/* 遮罩与壳：去掉薄荷雾与顶部绿光，换成骨白纸面 */
+#fv-guide[data-light="day"]{background:
+  radial-gradient(ellipse 80% 60% at 50% 0%,rgba(23,169,122,.06),transparent 66%),
+  var(--gv-backdrop)}
+#fv-guide[data-light="dusk"]{background:
+  radial-gradient(ellipse 80% 60% at 50% 0%,rgba(120,110,60,.06),transparent 66%),
+  var(--gv-backdrop)}
+#fv-guide[data-light="night"]{background:
+  radial-gradient(ellipse 80% 60% at 50% 0%,rgba(23,169,122,.10),transparent 66%),
+  var(--gv-backdrop)}
+.gv-shell::before{background:linear-gradient(180deg,rgba(255,255,255,.55),transparent 34%)}
+body[data-fv-theme="night"] .gv-shell::before{background:linear-gradient(180deg,rgba(159,220,198,.06),transparent 34%)}
+
+/* 原生控件跟随主题：滑杆/勾选/进度不再冒默认蓝 */
+
+html{accent-color:var(--acc)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;
+  background:linear-gradient(90deg,var(--acc) var(--fill,0%),rgba(11,40,30,.12) var(--fill,0%));
+  outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--acc);box-shadow:0 2px 6px rgba(6,35,26,.18);cursor:pointer}
+input[type="range"]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--surface);
+  border:2px solid var(--acc);cursor:pointer}
+input[type="checkbox"]{accent-color:var(--acc)}
+body[data-fv-theme="night"] body:has(#worldConfig:not(.hidden)) .gv-note,
+body:has(#worldConfig:not(.hidden)) .gv-note{bottom:96px}
+/* 进入工作区后，抬到底部操作台之上，别压住操作台与状态行 */
+body:has(#worldManager.hidden) .gv-note{bottom:190px}

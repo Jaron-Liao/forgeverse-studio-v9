@@ -356,16 +356,18 @@ body[data-fv-theme="night"] .t-list li{background:rgba(20,38,31,.92);color:#E9F7
 body[data-fv-theme="night"] .bubble{background:rgba(20,38,31,.95);color:#E9F7F1}
 body[data-fv-theme="night"] .hint{background:rgba(16,185,129,.1);color:#CBE3D9}
 body[data-fv-theme="night"] .cta-gold,body[data-fv-theme="night"] .primary,
-body[data-fv-theme="night"] .t-add button,body[data-fv-theme="night"] .wm-layout.active{color:#04241B}
-body[data-fv-theme="night"] .wm-card{background:linear-gradient(160deg,rgba(23,43,36,.96),rgba(18,34,28,.9))}
-body[data-fv-theme="night"] .wm-bg{background:#0F1D18}
+body[data-fv-theme="night"] .t-add button,body[data-fv-theme="night"] .wm-layout.active{color:var(--accent-ink,#7FEBC5)}
+/* 夜间表面交给 theme-v11 的 --surface / --bg 令牌，这里只声明「用哪个令牌」，
+   不再写死色值，避免两套主题层互相打架（曾经把标题写成荧光绿 #6EE7B7）。 */
+body[data-fv-theme="night"] .wm-card{background:var(--surface,#12241C)}
+body[data-fv-theme="night"] .wm-bg{background:var(--bg,#0B1712)}
 body[data-fv-theme="night"] .wm-top,body[data-fv-theme="night"] .wm-status{
-  background:linear-gradient(180deg,rgba(23,43,36,.8),transparent)}
-body[data-fv-theme="night"] .wc-page{background:#0F1D18}
-body[data-fv-theme="night"] .wc-group{background:linear-gradient(160deg,rgba(23,43,36,.94),rgba(18,34,28,.9))}
+  background:rgba(11,23,18,.72)}
+body[data-fv-theme="night"] .wc-page{background:var(--bg,#0B1712)}
+body[data-fv-theme="night"] .wc-group{background:var(--surface,#12241C)}
 body[data-fv-theme="night"] .wm-h0,
 body[data-fv-theme="night"] .wm-hero-title,
-body[data-fv-theme="night"] .wc-group legend{color:#6EE7B7}
+body[data-fv-theme="night"] .wc-group legend{color:var(--txt,#E7F3ED)}
 
 /* ============================================================
    WCAG AA 校正：小字号彩色文字改用深绿墨色（≥4.5:1）

@@ -89,14 +89,17 @@ export function render() {
   else if (engine) engine.renderer.render(engine.scene, engine.camera);
 }
 
-export function resize() {
+export function resize(w, h) {
   const { renderer, camera } = engine;
-  const w = renderer.domElement.clientWidth || 1280;
-  const h = renderer.domElement.clientHeight || 720;
-  camera.aspect = w / h;
+  // 优先用调用方给的容器尺寸：读画布自身 clientWidth 会形成闭环，
+  // 画布一旦被 setSize 固定就再也长不大（1440 窗口下右侧留白 160px）。
+  const host = renderer.domElement.parentElement;
+  const cw = Number(w) || (host && host.clientWidth) || renderer.domElement.clientWidth || 1280;
+  const ch = Number(h) || (host && host.clientHeight) || renderer.domElement.clientHeight || 720;
+  camera.aspect = cw / ch;
   camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-  if (composer) composer.setSize(w, h);
+  renderer.setSize(cw, ch);
+  if (composer) composer.setSize(cw, ch);
 }
 
 export function getQuality() { return currentQuality; }

@@ -106,7 +106,9 @@ note.querySelector('[data-act="dismiss"]').click();
 ok('轻提示可关闭', note.hidden === true);
 
 ok('主题档位写入 body', document.body.dataset.fvTex === 'soft' && document.body.dataset.fvDensity === 'three');
-ok('绿色强调色覆盖 --acc', document.documentElement.style.getPropertyValue('--acc').trim() === '#10B981');
+// 断言不再写死色值：主题会随设计迭代调整，测试只校验「与数据层一致」
+const EMERALD = (await import(new URL('../js/guide-data.js', import.meta.url).href)).PALETTES.emerald;
+ok('绿色强调色覆盖 --acc', document.documentElement.style.getPropertyValue('--acc').trim().toLowerCase() === EMERALD.accent.toLowerCase());
 ok('精灵 emoji 已应用', document.getElementById('pet').textContent === '🐲');
 
 await new Promise(r => setTimeout(r, 60));

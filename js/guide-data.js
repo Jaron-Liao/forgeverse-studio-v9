@@ -397,13 +397,16 @@ export const LABELS = {
 };
 
 /* 绿色家族：全部走 WorkBuddy 绿，accent 用于填充，a11y 用于浅底文字（AA ≥ 4.5） */
+/* 六套绿系皮肤 —— v11 收敛版：全部落在 150°–170° 色相带，
+   降饱和、加深主色，避免 2020 年代那批「荧光薄荷绿」的廉价感。
+   accent 用于实底按钮（白字对比 ≥ 4.5），a11y 用于小字（对比 ≥ 4.5），deep 用于深底锚点。 */
 export const PALETTES = {
-  emerald: { name: '翡翠绿', accent: '#10B981', accent2: '#34D399', soft: '#D1FAE5', a11y: '#047857', deep: '#065F46' },
-  mint:    { name: '薄荷绿', accent: '#34D399', accent2: '#6EE7B7', soft: '#ECFDF5', a11y: '#047857', deep: '#065F46' },
-  forest:  { name: '森林绿', accent: '#059669', accent2: '#10B981', soft: '#D1FAE5', a11y: '#065F46', deep: '#064E3B' },
-  jade:    { name: '青玉绿', accent: '#06B6D4', accent2: '#22D3EE', soft: '#CFFAFE', a11y: '#0E7490', deep: '#155E75' },
-  moss:    { name: '苔石绿', accent: '#84CC16', accent2: '#A3E635', soft: '#ECFCCB', a11y: '#4D7C0F', deep: '#3F6212' },
-  pine:    { name: '松针绿', accent: '#065F46', accent2: '#10B981', soft: '#D1FAE5', a11y: '#064E3B', deep: '#022C22' }
+  emerald: { name: '祖母绿', accent: '#0B6B4B', accent2: '#0F8A62', soft: '#E8F2EC', a11y: '#0A5039', deep: '#06231A' },
+  jade:    { name: '青瓷绿', accent: '#0E6E63', accent2: '#12897C', soft: '#E2F0ED', a11y: '#0B544C', deep: '#05302B' },
+  sage:    { name: '鼠尾草', accent: '#4E7A5F', accent2: '#6A9578', soft: '#ECF1EA', a11y: '#3C6149', deep: '#233A2B' },
+  pine:    { name: '松针绿', accent: '#064E3B', accent2: '#0B6B4B', soft: '#E3EDE7', a11y: '#04382A', deep: '#02231A' },
+  teal:    { name: '深青绿', accent: '#0B5D63', accent2: '#0F7A80', soft: '#E1EEEF', a11y: '#08484C', deep: '#04282B' },
+  olive:   { name: '橄榄绿', accent: '#5C6B2E', accent2: '#768740', soft: '#EEF0E2', a11y: '#47521F', deep: '#2B3312' }
 };
 
 /* 深浅底：day/dusk/night。文本对比全部按 WCAG AA 校过 */

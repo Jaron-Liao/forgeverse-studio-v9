@@ -1,6 +1,6 @@
 {
   "name": "forgeverse-studio",
-  "version": "10.1.1",
+  "version": "11.0.0",
   "private": true,
   "type": "module",
   "description": "ForgeVerse · 3D 造物工作台（纯静态）",

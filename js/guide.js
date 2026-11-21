@@ -87,12 +87,12 @@ function resolveLight(light) {
 const THEME_TOKENS = {
   day: null,
   dusk: {
-    '--bg': '#F3F7EF', '--panel': 'rgba(255,253,248,.94)', '--panel2': 'rgba(238,246,232,.96)',
-    '--txt': '#1B3628', '--sub': '#4E6A57', '--line': 'rgba(16,185,129,.26)'
+    '--bg': '#F3F5EF', '--panel': 'rgba(255,253,248,.94)', '--panel2': 'rgba(240,244,236,.96)',
+    '--txt': '#16261E', '--sub': '#4E6157', '--line': 'rgba(11,107,75,.22)'
   },
   night: {
-    '--bg': '#0F1D18', '--panel': 'rgba(23,43,36,.94)', '--panel2': 'rgba(20,38,31,.96)',
-    '--txt': '#E9F7F1', '--sub': '#A7C2B7', '--line': 'rgba(52,211,153,.28)'
+    '--bg': '#0B1712', '--panel': 'rgba(18,36,28,.94)', '--panel2': 'rgba(14,29,23,.96)',
+    '--txt': '#E7F3ED', '--sub': '#9DB6AA', '--line': 'rgba(159,220,198,.22)'
   }
 };
 
@@ -290,10 +290,10 @@ function introHTML() {
         <p class="gv-intro-p">场景、面板、绿系皮肤、玩法开关。全答完会生成一套配置；
           不想答也没关系——点「跳过全部」立刻用一套安全默认值进入，之后在任何时候补填。</p>
         <div class="gv-chips">
-          <span class="gv-chip">🎯 30 道问答题</span>
-          <span class="gv-chip">🧱 6 类面板</span>
-          <span class="gv-chip">🎨 6 套绿系皮肤</span>
-          <span class="gv-chip">🐲 6 只造物精灵</span>
+          <span class="gv-chip">30 道问答题</span>
+          <span class="gv-chip">6 类面板</span>
+          <span class="gv-chip">6 套绿系皮肤</span>
+          <span class="gv-chip">6 只造物精灵</span>
         </div>
         <div class="gv-steps">
           <div class="gv-step"><i>1</i><div><b>认识你</b><span>场景、痛点、设备、投入时间</span></div></div>
@@ -333,13 +333,15 @@ function wizardHTML() {
   const pal = PALETTES[cfg.palette] || PALETTES.emerald;
   const chapter = CHAPTERS.find(c => c.id === q.chapter) || CHAPTERS[0];
 
-  const chapters = CHAPTERS.map(c => {
+  // 章节序号用汉字数字：比 emoji 更贴「纸面 / 出版」的调性，也不会往绿系里塞红橙蓝
+  const CN_NUM = ['壹', '贰', '叁', '肆', '伍'];
+  const chapters = CHAPTERS.map((c, ci) => {
     const qs = QUESTIONS.filter(x => x.chapter === c.id);
     const ok = qs.every(x => answeredOf(x));
     const skipped = qs.some(x => S.skippedIds.indexOf(x.id) > -1) && !ok;
     return `<button type="button" class="gv-ch ${c.id === q.chapter ? 'on' : ''} ${ok ? 'done' : ''} ${skipped ? 'skip' : ''}"
       data-ch="${c.id}" aria-pressed="${c.id === q.chapter}">
-      <span aria-hidden="true">${c.icon}</span> ${c.name}${ok ? '<em aria-label="已完成">✓</em>' : skipped ? '<em class="q" aria-label="有跳过">·</em>' : ''}
+      <span class="gv-ch-n" aria-hidden="true">${CN_NUM[ci] || ci + 1}</span> ${c.name}${ok ? '<em aria-label="已完成">✓</em>' : skipped ? '<em class="q" aria-label="有跳过">·</em>' : ''}
     </button>`;
   }).join('');
 
@@ -445,11 +447,12 @@ function resultHTML() {
 
 function settingsHTML() {
   const cfg = resolve();
-  const rows = CHAPTERS.map(c => {
+  const CN = ['壹', '贰', '叁', '肆', '伍'];
+  const rows = CHAPTERS.map((c, ci) => {
     const qs = QUESTIONS.filter(x => x.chapter === c.id);
     return `
       <section class="gv-set-group">
-        <h3 class="gv-set-h"><span aria-hidden="true">${c.icon}</span> ${c.name}<small>${qs.length} 题</small></h3>
+        <h3 class="gv-set-h"><span class="gv-ch-n" aria-hidden="true">${CN[ci] || ci + 1}</span> ${c.name}<small>${qs.length} 题</small></h3>
         ${qs.map(q => {
           const has = answeredOf(q);
           const raw = cfg[q.id];

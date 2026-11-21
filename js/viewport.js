@@ -234,7 +234,7 @@ export function resize(w, h) {
   const el = renderer?.domElement;
   canvasW = Math.max(1, Math.round(Number(w) || el?.clientWidth || el?.width || canvasW));
   canvasH = Math.max(1, Math.round(Number(h) || el?.clientHeight || el?.height || canvasH));
-  if (typeof resizeMain === 'function') resizeMain();
+  if (typeof resizeMain === 'function') resizeMain(canvasW, canvasH);
   else if (renderer) renderer.setSize(canvasW, canvasH);
   updateCameras();
   return { width: canvasW, height: canvasH };

@@ -61,8 +61,9 @@
 ## 目录
 ```
 index.html          # 入口 + importmap
-css/3d.css          # UI 样式（WorkBuddy 绿色变量）
-css/guide.css       # 创作向导 + 绿色主题扩展
+css/3d.css          # UI 骨架样式（基础变量 + 布局）
+css/guide.css       # 创作向导层样式
+css/theme-v11.css   # 主题层 v11「深祖母绿 × 骨白」，最后加载，统一收口
 js/
   state.js          # 状态 + 事件总线
   guide-data.js     # 创作向导 30 问题库 + 默认值 + 绿系配色
