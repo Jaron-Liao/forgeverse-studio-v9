@@ -454,9 +454,12 @@ function wireUI() {
   $('btnLoad').onclick = () => $('fileInput').click();
   $('fileInput').onchange = e => { if (e.target.files[0]) loadFile(e.target.files[0]); e.target.value = ''; };
   $('btnExport').onclick = exportGLTF;
-  // 返回世界管理：先保存当前世界再展示管理页
+  // 返回世界管理：先保存，再释放当前世界。
+  // 只 save + showManager 不释放的话，openWorld 会因「同 id 早退」而不派发 world:open，
+  // 再点同一张卡毫无反应——这就是「退档后无法重新进入」。
   $('btnBackWorlds').onclick = async () => {
     if (getActiveWorldId()) await saveWorld();
+    if (!closeWorld()) { toast('当前世界保存失败，已留在原世界'); return; }
     showManager();
   };
 

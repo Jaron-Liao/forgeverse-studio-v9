@@ -328,7 +328,15 @@ function normalizeWorldPayload(payload, id, fallbackName) {
 export async function openWorld(id) {
   initWorldManager();
   if (!id || typeof id !== 'string') { fail('WORLD_NOT_FOUND', '找不到这个世界'); return null; }
-  if (currentWorld && currentWorld.id === id) return currentWorld;
+  if (currentWorld && currentWorld.id === id) {
+    // 场景还在，但 UI 可能停在世界管理页（返回后再次点同一张卡，或从其它入口回来）。
+    // 早退前必须补发 open，否则调用方收不到事件、页面不会切回工作区。
+    emit('world:open', {
+      id: currentWorld.id, name: currentWorld.name,
+      config: currentWorld.config, source: 'local', reused: true,
+    });
+    return currentWorld;
+  }
 
   const previousId = currentWorld?.id || readActiveId();
   let backup = null;

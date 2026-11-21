@@ -2,6 +2,24 @@
 
 本项目所有重要变更记录于此。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循语义化版本（SemVer）。
 
+## [12.0.1] — 2026-11-21
+
+### Fixed
+- **退档后无法重新进入世界**（用户反馈）。根因不在存档，也不在建档页：
+  1. `btnBackWorlds` 只 `saveWorld()` + `showManager()`，**没有释放 `currentWorld`**；
+  2. `openWorld()` 开头有「同 id 直接 return」的守卫，于是再点同一张卡命中早退，
+     **不派发 `world:open`**，`enterWorkspace()` 不执行，页面停在世界管理页且无任何提示。
+
+  修法两层：返回时 `closeWorld()` 释放当前世界（顺带落盘、清场景）；
+  `openWorld()` 命中早退时补发 `world:open`，作为其它入口的兜底。
+
+### Verified
+- 排查结论：`forgeverse.worlds.index` / `forgeverse.world.<id>` / `forgeverse.activeWorld`
+  三处写入均正常，刷新后世界仍在（1 条记录，卡片可点）——**不是没保存**。
+- 修复前实测：点卡片 `world:open` 派发 0 次，`#worldManager` 不隐藏。
+- 修复后实测：连续 3 轮「进→退→进」每轮 `world:open` 派发 1 次、管理页隐藏、
+  画布 1440×900；刷新后再进同样通过，场景完整重建（物件 1040、等级进度保留）。
+
 ## [12.0.0] — 2026-11-21
 
 反馈原话：「不是 太单调了」。v11 把整站压进单一 158° 色相带、关掉所有光斑、
