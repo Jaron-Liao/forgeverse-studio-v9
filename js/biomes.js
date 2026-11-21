@@ -29,7 +29,7 @@ const BUILDINGS = {
     const g = new THREE.Group();
     const b = box(4, 3, 4, 0xd9b98a, 0.95); b.position.y = 1.5;
     const roof = box(4.4, 0.3, 4.4, 0xc4a274, 0.95); roof.position.y = 3.15;
-    const door = box(1, 1.8, 0.1, 0x6b4f33, 0.9); door.position.set(0, 0.9, 2.05);
+    const door = box(1, 1.8, 0.1, 0x9b6b43, 0.9); door.position.set(0, 0.9, 2.05);
     g.add(b, roof, door); return g;
   },
   minaret() {
@@ -43,18 +43,18 @@ const BUILDINGS = {
   derrick() {
     const g = new THREE.Group();
     for (let i = 0; i < 4; i++) {
-      const leg = box(0.18, 9, 0.18, 0x9aa0aa, 0.5, 0.6);
+      const leg = box(0.18, 9, 0.18, 0xB8C0CC, 0.5, 0.6);
       leg.position.set(i % 2 ? 1.2 : -1.2, 4.5, i < 2 ? 1.2 : -1.2);
       leg.rotation.z = (i % 2 ? -1 : 1) * 0.12;
       g.add(leg);
     }
-    const cap = box(3, 0.3, 3, 0xb0b6c0, 0.5, 0.6); cap.position.y = 9;
+    const cap = box(3, 0.3, 3, 0xC8D0DC, 0.5, 0.6); cap.position.y = 9;
     g.add(cap); return g;
   },
   // 雪地：木屋 / 冰屋 / 松木教堂
   cabin() {
     const g = new THREE.Group();
-    const b = box(4.5, 3, 4, 0x8a6242, 0.9); b.position.y = 1.5;
+    const b = box(4.5, 3, 4, 0xB8875A, 0.9); b.position.y = 1.5;
     const roof = new THREE.Mesh(new THREE.ConeGeometry(3.6, 2.2, 4), STD(0xe8f0ff, 0.95));
     roof.rotation.y = Math.PI / 4; roof.position.y = 4; roof.castShadow = true;
     const win = box(1, 1, 0.1, 0xffd98a, 0.3); win.material.emissive = new THREE.Color(0xffb84d); win.material.emissiveIntensity = 0.6;
@@ -71,8 +71,8 @@ const BUILDINGS = {
   },
   chapel() {
     const g = new THREE.Group();
-    const b = box(3.4, 4.5, 5, 0x9a7b5a, 0.9); b.position.y = 2.25;
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(2.8, 3, 4), STD(0x6a4a35, 0.9));
+    const b = box(3.4, 4.5, 5, 0xB99A74, 0.9); b.position.y = 2.25;
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(2.8, 3, 4), STD(0x9b6b43, 0.9));
     roof.rotation.y = Math.PI / 4; roof.position.y = 6; roof.castShadow = true;
     const spire = cyl(0.15, 0.2, 2, 0xc9a86a, 8, 0.5, 0.5); spire.position.y = 8.4;
     g.add(b, roof, spire); return g;
@@ -80,20 +80,20 @@ const BUILDINGS = {
   // 都市：公寓 / 写字楼 / 便利店
   apartment() {
     const g = new THREE.Group();
-    const b = box(5, 12, 5, 0x9aa6b8, 0.7, 0.15); b.position.y = 6;
+    const b = box(5, 12, 5, 0xB8C6D8, 0.7, 0.15); b.position.y = 6;
     for (let y = 1; y < 6; y++) for (let x = -1; x <= 1; x++) {
-      const w = box(0.8, 1.1, 0.08, 0x8fd8ff, 0.2, 0.3);
-      w.material.emissive = new THREE.Color(0x4aa8ff); w.material.emissiveIntensity = 0.35;
+      const w = box(0.8, 1.1, 0.08, 0xA8E4FF, 0.2, 0.3);
+      w.material.emissive = new THREE.Color(0x5FB8FF); w.material.emissiveIntensity = 0.35;
       w.position.set(x * 1.5, y * 1.9, 2.55); g.add(w);
     }
     g.add(b); return g;
   },
   office() {
     const g = new THREE.Group();
-    const b = box(6, 18, 6, 0x5b6b86, 0.35, 0.55); b.position.y = 9;
-    const glass = box(6.1, 17, 6.1, 0x7fc8ff, 0.1, 0.2);
+    const b = box(6, 18, 6, 0x8FA4C0, 0.35, 0.55); b.position.y = 9;
+    const glass = box(6.1, 17, 6.1, 0x9EDCFF, 0.1, 0.2);
     glass.material.transparent = true; glass.material.opacity = 0.35; glass.position.y = 9;
-    const antenna = cyl(0.06, 0.06, 3, 0xc0c8d4, 8, 0.4, 0.7); antenna.position.y = 19.5;
+    const antenna = cyl(0.06, 0.06, 3, 0xD8E0EC, 8, 0.4, 0.7); antenna.position.y = 19.5;
     g.add(b, glass, antenna); return g;
   },
   store() {
@@ -112,16 +112,16 @@ const BUILDINGS = {
 const DECOR = {
   cactus() {
     const g = new THREE.Group();
-    const body = cyl(0.45, 0.55, 2.4, 0x5a9b52, 12, 0.95); body.position.y = 1.2;
-    const arm = cyl(0.28, 0.3, 1.1, 0x5a9b52, 10, 0.95); arm.position.set(0.55, 1.4, 0); arm.rotation.z = -0.6;
+    const body = cyl(0.45, 0.55, 2.4, 0x5FC24C, 12, 0.95); body.position.y = 1.2;
+    const arm = cyl(0.28, 0.3, 1.1, 0x5FC24C, 10, 0.95); arm.position.set(0.55, 1.4, 0); arm.rotation.z = -0.6;
     g.add(body, arm); return g;
   },
   palm() {
     const g = new THREE.Group();
-    const trunk = cyl(0.22, 0.35, 4.5, 0x9a7245, 10, 0.95); trunk.position.y = 2.25;
+    const trunk = cyl(0.22, 0.35, 4.5, 0xB8875A, 10, 0.95); trunk.position.y = 2.25;
     const crown = new THREE.Group(); crown.position.y = 4.5;
     for (let i = 0; i < 6; i++) {
-      const leaf = box(2.6, 0.08, 0.5, 0x4fa85a, 0.95);
+      const leaf = box(2.6, 0.08, 0.5, 0x8FD96B, 0.95);
       leaf.position.set(1.3, 0, 0); leaf.rotation.y = i / 6 * Math.PI * 2;
       const pivot = new THREE.Group(); pivot.rotation.y = i / 6 * Math.PI * 2;
       pivot.add(leaf); crown.add(pivot);
@@ -130,9 +130,9 @@ const DECOR = {
   },
   pine() {
     const g = new THREE.Group();
-    const trunk = cyl(0.25, 0.35, 2, 0x6b4a32, 10, 0.95); trunk.position.y = 1;
+    const trunk = cyl(0.25, 0.35, 2, 0x9b6b43, 10, 0.95); trunk.position.y = 1;
     for (let i = 0; i < 3; i++) {
-      const c = new THREE.Mesh(new THREE.ConeGeometry(1.6 - i * 0.35, 2, 10), STD(0x2f6b4a, 0.95));
+      const c = new THREE.Mesh(new THREE.ConeGeometry(1.6 - i * 0.35, 2, 10), STD(0x5FC24C, 0.95));
       c.position.y = 2.2 + i * 1.2; c.castShadow = true; g.add(c);
     }
     g.add(trunk); return g;
@@ -147,7 +147,7 @@ const DECOR = {
   },
   streetlamp() {
     const g = new THREE.Group();
-    const pole = cyl(0.09, 0.12, 4.5, 0x4a4f5c, 0.5, 0.7); pole.position.y = 2.25;
+    const pole = cyl(0.09, 0.12, 4.5, 0x9aa6b8, 0.5, 0.7); pole.position.y = 2.25;
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 10),
       new THREE.MeshStandardMaterial({ color: 0xfff0c0, emissive: 0xffcf6a, emissiveIntensity: 1.5 }));
     head.position.y = 4.6;
@@ -156,24 +156,24 @@ const DECOR = {
   },
   bench() {
     const g = new THREE.Group();
-    const seat = box(2, 0.15, 0.7, 0x9a7245, 0.85); seat.position.y = 0.65;
-    const back = box(2, 0.8, 0.12, 0x9a7245, 0.85); back.position.set(0, 1.1, -0.3);
-    for (const x of [-0.8, 0.8]) { const leg = box(0.12, 0.65, 0.12, 0x555, 0.6, 0.4); leg.position.set(x, 0.32, 0); g.add(leg); }
+    const seat = box(2, 0.15, 0.7, 0xB8875A, 0.85); seat.position.y = 0.65;
+    const back = box(2, 0.8, 0.12, 0xB8875A, 0.85); back.position.set(0, 1.1, -0.3);
+    for (const x of [-0.8, 0.8]) { const leg = box(0.12, 0.65, 0.12, 0x9aa6b8, 0.6, 0.4); leg.position.set(x, 0.32, 0); g.add(leg); }
     g.add(seat, back); return g;
   },
   billboard() {
     const g = new THREE.Group();
-    const pole = box(0.2, 3, 0.2, 0x6a6f7c, 0.6, 0.4); pole.position.y = 1.5;
-    const panel = box(4, 2, 0.15, 0x2a3350, 0.5, 0.2); panel.position.y = 4;
-    const screen = box(3.7, 1.7, 0.06, 0x4de1ff, 0.3);
-    screen.material.emissive = new THREE.Color(0x2ab8ff); screen.material.emissiveIntensity = 0.9;
+    const pole = box(0.2, 3, 0.2, 0x9aa6b8, 0.6, 0.4); pole.position.y = 1.5;
+    const panel = box(4, 2, 0.15, 0x6A5FE0, 0.5, 0.2); panel.position.y = 4;
+    const screen = box(3.7, 1.7, 0.06, 0x6DE0F0, 0.3);
+    screen.material.emissive = new THREE.Color(0x3AC5E8); screen.material.emissiveIntensity = 0.9;
     screen.position.set(0, 4, 0.12);
     g.add(pole, panel, screen); return g;
   },
   hydrant() {
     const g = new THREE.Group();
-    const body = cyl(0.28, 0.32, 0.9, 0xd8443a, 0.6, 0.2); body.position.y = 0.45;
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8), STD(0xd8443a, 0.6, 0.2)); cap.position.y = 0.95;
+    const body = cyl(0.28, 0.32, 0.9, 0xFF6B7A, 0.6, 0.2); body.position.y = 0.45;
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8), STD(0xFF6B7A, 0.6, 0.2)); cap.position.y = 0.95;
     g.add(body, cap); return g;
   },
 };
@@ -181,7 +181,7 @@ const DECOR = {
 // ---------- 公路 ----------
 function roadSegment(len = 20, width = 6) {
   const g = new THREE.Group();
-  const asphalt = box(width, 0.1, len, 0x2e3238, 0.95, 0.02); asphalt.position.y = 0.05;
+  const asphalt = box(width, 0.1, len, 0x8F98A4, 0.95, 0.02); asphalt.position.y = 0.05;
   g.add(asphalt);
   // 虚线
   const dashCount = Math.floor(len / 3);
@@ -201,21 +201,21 @@ function roadSegment(len = 20, width = 6) {
 export const BIOMES = {
   desert: {
     label: '沙漠',
-    terrain: { low: 0xe7cf94, mid: 0xd9ba6a, high: 0xc29a55, peak: 0xfff4d6, sky: 0xf0d49a, water: 0x49a0b8, height: 2.6 },
+    terrain: { low: 0xFFE0A3, mid: 0xF5C46B, high: 0xD9984F, peak: 0xFFF8E8, sky: 0xFFDCA8, water: 0x5CC8D8, height: 2.6 },
     buildings: [BUILDINGS.adobe, BUILDINGS.minaret, BUILDINGS.derrick],
     decor: [DECOR.cactus, DECOR.palm],
     road: () => roadSegment(24, 7),
   },
   snow: {
     label: '雪地',
-    terrain: { low: 0xdfeaf7, mid: 0xe8f2ff, high: 0xf2f8ff, peak: 0xffffff, sky: 0xd4e6f5, water: 0x6aa8cf, height: 3.4 },
+    terrain: { low: 0xE8F6FF, mid: 0xD2EAFF, high: 0xF4FAFF, peak: 0xFFFFFF, sky: 0xBFE8FF, water: 0x6CC8F0, height: 3.4 },
     buildings: [BUILDINGS.cabin, BUILDINGS.igloo, BUILDINGS.chapel],
     decor: [DECOR.pine, DECOR.snowman],
     road: () => roadSegment(24, 6),
   },
   urban: {
     label: '都市',
-    terrain: { low: 0x6a7280, mid: 0x7a828e, high: 0x8a929e, peak: 0xb8c0cc, sky: 0x9fb4c8, water: 0x4a7fb8, height: 1.2 },
+    terrain: { low: 0x9AA8BC, mid: 0xB0BCCE, high: 0xC6D0DE, peak: 0xE2E8F0, sky: 0xBFD8F0, water: 0x6CC8F0, height: 1.2 },
     buildings: [BUILDINGS.apartment, BUILDINGS.office, BUILDINGS.store],
     decor: [DECOR.streetlamp, DECOR.bench, DECOR.billboard, DECOR.hydrant],
     road: () => roadSegment(30, 10),

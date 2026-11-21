@@ -20,11 +20,11 @@ function ensureColors(mesh) {
 
 const PRIMS = {
   box: () => new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2, 4, 4, 4), mat()),
-  sphere: () => new THREE.Mesh(new THREE.SphereGeometry(1.3, 64, 48), mat(0xffc46b, 0.35)),
-  capsule: () => new THREE.Mesh(new THREE.CapsuleGeometry(1, 1.6, 16, 40), mat(0x9be8a0)),
-  cone: () => new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 48), mat(0xff9f6b)),
-  cylinder: () => new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 2.4, 48), mat(0xb59bff)),
-  torus: () => new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.45, 32, 80), mat(0xff7fb0, 0.3, 0.4)),
+  sphere: () => new THREE.Mesh(new THREE.SphereGeometry(1.3, 64, 48), mat(0xFFC85C, 0.35)),
+  capsule: () => new THREE.Mesh(new THREE.CapsuleGeometry(1, 1.6, 16, 40), mat(0x8FE0A0)),
+  cone: () => new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 48), mat(0xFF9E6B)),
+  cylinder: () => new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 2.4, 48), mat(0xB49BF5)),
+  torus: () => new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.45, 32, 80), mat(0xFF9FC4, 0.3, 0.4)),
 };
 
 // 主题化模型：用基础体拼装
@@ -32,11 +32,11 @@ function buildModel(key) {
   const g = new THREE.Group();
   if (key === 'tree') {
     // 高质量阔叶树：锥形树干 + 分层树冠 + 随机扰动
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.55, 3.4, 20), mat(0x6b4526, 0.92));
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.55, 3.4, 20), mat(0x9b6b43, 0.92));
     trunk.position.y = 1.7;
     g.add(trunk);
-    const leafMat = mat(0x3f9d54, 0.85);
-    const leafMat2 = mat(0x4cb562, 0.85);
+    const leafMat = mat(0x5FC24C, 0.85);
+    const leafMat2 = mat(0x8FD96B, 0.85);
     // 三层错落树冠
     [[3.3, 2.1, 0], [4.3, 1.75, 0.3], [5.1, 1.3, 0.6]].forEach(([y, r, tilt], idx) => {
       const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 3), idx === 1 ? leafMat2 : leafMat);
@@ -59,19 +59,19 @@ function buildModel(key) {
       p.setXYZ(i, p.getX(i) * n, p.getY(i) * n * 0.8, p.getZ(i) * n);
     }
     geo.computeVertexNormals();
-    const r = new THREE.Mesh(geo, mat(0x7f8794, 0.9, 0.05));
+    const r = new THREE.Mesh(geo, mat(0xB8C0CC, 0.9, 0.05));
     r.scale.set(1.3, 1, 1.1); r.position.y = 0.9;
     g.add(r);
   } else if (key === 'bush') {
     for (let i = 0; i < 5; i++) {
       const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55 + Math.random() * 0.3, 2),
-        mat(i % 2 ? 0x4caf6a : 0x3d9c58, 0.9));
+        mat(i % 2 ? 0x5FC24C : 0x8FD96B, 0.9));
       const a = i / 5 * Math.PI * 2;
       b.position.set(Math.cos(a) * 0.7, 0.5 + Math.random() * 0.3, Math.sin(a) * 0.7);
       g.add(b);
     }
   } else if (key === 'lamp') {
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 4, 12), mat(0x556, 0.6, 0.6));
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 4, 12), mat(0x9aa6b8, 0.6, 0.6));
     pole.position.y = 2;
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12),
       new THREE.MeshStandardMaterial({ color: 0xffe9a8, emissive: 0xffcf5c, emissiveIntensity: 1.4, roughness: 0.4 }));
@@ -80,24 +80,24 @@ function buildModel(key) {
     g.add(pole, head, pl);
   } else if (key === 'char') {
     // 角色：更精细的比例与配色（LOL 风格Q版英雄）
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.62, 1.3, 16, 32), mat(0x3a86d4, 0.45, 0.1));
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.62, 1.3, 16, 32), mat(0x5CC8FF, 0.45, 0.1));
     body.position.y = 1.45;
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.68, 40, 32), mat(0xf2c9a0, 0.6));
     head.position.y = 2.95;
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0x2a2438, 0.7));
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0x9B7EDE, 0.7));
     hair.position.y = 3.0;
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a2a4a, roughness: 0.2, metalness: 0.1 });
     const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), eyeMat); e1.position.set(-0.24, 2.98, 0.61);
     const e2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), eyeMat); e2.position.set(0.24, 2.98, 0.61);
-    const belt = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.1, 12, 32), mat(0xe0b84c, 0.3, 0.7));
+    const belt = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.1, 12, 32), mat(0xFFC85C, 0.3, 0.7));
     belt.rotation.x = Math.PI / 2; belt.position.y = 1.3;
     g.add(body, head, hair, e1, e2, belt);
   } else if (key === 'chest') {
-    const base = new THREE.Mesh(new THREE.BoxGeometry(2, 1.2, 1.4), mat(0x8a5a2b, 0.8));
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2, 1.2, 1.4), mat(0x9b6b43, 0.8));
     base.position.y = 0.6;
-    const lid = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.6, 1.45), mat(0xa06a33, 0.8));
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.6, 1.45), mat(0xB8875A, 0.8));
     lid.position.y = 1.4;
-    const band = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.2, 1.5), mat(0xd9c27a, 0.4, 0.7));
+    const band = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.2, 1.5), mat(0xFFC85C, 0.4, 0.7));
     band.position.y = 1.2;
     g.add(base, lid, band);
   }
@@ -105,8 +105,8 @@ function buildModel(key) {
 }
 
 const MODEL_INFO = {
-  tree: ['🌳 树', 0x3fa85a], rock: ['🪨 巨石', 0x8a8f9c], bush: ['🌿 灌木', 0x4caf6a],
-  lamp: ['💡 路灯', 0xffe9a8], char: ['🧍 角色', 0x5cc8ff], chest: ['📦 宝箱', 0x8a5a2b],
+  tree: ['🌳 树', 0x5FC24C], rock: ['🪨 巨石', 0xB8C0CC], bush: ['🌿 灌木', 0x5FC24C],
+  lamp: ['💡 路灯', 0xffe9a8], char: ['🧍 角色', 0x5CC8FF], chest: ['📦 宝箱', 0x9b6b43],
 };
 
 let selBox = null;

@@ -22,7 +22,7 @@ h1, h2, h3 { font-family: "Noto Serif SC", "Songti SC", Georgia, serif; line-hei
 h1 { font-size: clamp(28px, 4vw, 48px); }
 h2 { font-size: clamp(22px, 3vw, 32px); }
 h3 { font-size: 18px; }
-:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; box-shadow: 0 0 0 4px rgba(46, 42, 58, .25); }
 
 .site-page { display: flex; flex-direction: column; min-height: 100vh; }
 .site-main { flex: 1 0 auto; width: 100%; }
@@ -61,7 +61,7 @@ h3 { font-size: 18px; }
   color: var(--sub); font-size: 14px; transition: background .15s, color .15s;
 }
 .site-nav a:hover { background: var(--panel); color: var(--txt); }
-.site-nav a[aria-current="page"] { color: var(--gold2); background: rgba(232, 195, 122, .12); font-weight: 700; }
+.site-nav a[aria-current="page"] { color: var(--gold2); background: rgba(255, 158, 79, .14); font-weight: 700; }
 .site-nav-toggle:checked ~ .site-nav { display: flex; }
 .site-nav-toggle:checked ~ .site-nav-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .site-nav-toggle:checked ~ .site-nav-btn span:nth-child(2) { opacity: 0; }
@@ -79,7 +79,7 @@ h3 { font-size: 18px; }
   min-height: 44px; padding: 10px 22px; border-radius: 8px;
   font-size: 15px; font-family: inherit; cursor: pointer; transition: transform .15s, box-shadow .15s, filter .15s;
 }
-.site-btn-primary { background: linear-gradient(135deg, var(--cinnabar), var(--gold)); color: #06121f; font-weight: 800; border: 0; }
+.site-btn-primary { background: linear-gradient(135deg, var(--cinnabar), var(--gold)); color: var(--txt); font-weight: 800; border: 0; }
 .site-btn-primary:hover { filter: brightness(1.08); box-shadow: 0 0 20px var(--gold-glow); }
 .site-btn-primary:active { transform: translateY(1px); }
 .site-btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--txt); }
@@ -91,21 +91,21 @@ h3 { font-size: 18px; }
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   overflow: hidden; transition: transform .18s, box-shadow .18s, border-color .18s;
 }
-.site-card:hover { transform: translateY(-4px); border-color: var(--acc); box-shadow: 0 20px 60px rgba(0, 0, 0, .65); }
+.site-card:hover { transform: translateY(-4px); border-color: var(--acc); box-shadow: 0 20px 60px rgba(120, 86, 48, .22); }
 .site-card-body { padding: 20px; }
 .site-card-body h3 { margin: 0 0 8px; color: var(--gold2); }
 .site-card-body p { margin: 0; color: var(--sub); font-size: 14px; }
 
 /* 生态色块：沿用 3d.css 既有渐变，不新增 rogue 色值 */
 .site-eco-art { height: 140px; position: relative; }
-.site-eco-art[data-biome="grass"]  { background: linear-gradient(160deg, #33543A, #6FA85A); }
-.site-eco-art[data-biome="snow"]   { background: linear-gradient(160deg, #5C7691, #DCEAF7); }
-.site-eco-art[data-biome="desert"] { background: linear-gradient(160deg, #8A6A3C, #D9BA6A); }
-.site-eco-art[data-biome="cyber"]  { background: linear-gradient(160deg, #1E2740, #4DE1FF); }
+.site-eco-art[data-biome="grass"]  { background: linear-gradient(160deg, #8FD96B, #5FC24C); }
+.site-eco-art[data-biome="snow"]   { background: linear-gradient(160deg, #E8F6FF, #BFE8FF); }
+.site-eco-art[data-biome="desert"] { background: linear-gradient(160deg, #FFE0A3, #F5C46B); }
+.site-eco-art[data-biome="cyber"]  { background: linear-gradient(160deg, #8B6BE8, #6DE0F0); }
 .site-eco-tag {
   position: absolute; left: 12px; bottom: 12px;
   padding: 4px 12px; border-radius: 999px; font-size: 12px;
-  background: rgba(18, 19, 27, .72); border: 1px solid var(--line); color: var(--txt);
+  background: rgba(255, 255, 255, .82); border: 1px solid var(--line); color: var(--txt);
 }
 
 /* ---------- 4. 首页首屏 ---------- */
@@ -114,8 +114,8 @@ h3 { font-size: 18px; }
   padding: 72px 0 64px;
   border-bottom: 1px solid var(--line);
   background:
-    radial-gradient(60% 80% at 80% -10%, rgba(232, 195, 122, .14), transparent 60%),
-    radial-gradient(50% 70% at 10% 110%, rgba(77, 225, 255, .08), transparent 60%),
+    radial-gradient(60% 80% at 80% -10%, rgba(255, 158, 79, .16), transparent 60%),
+    radial-gradient(50% 70% at 10% 110%, rgba(58, 197, 232, .12), transparent 60%),
     var(--bg);
 }
 .site-hero-inner { position: relative; z-index: 1; text-align: center; }

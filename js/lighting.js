@@ -11,7 +11,7 @@ export function setupLighting(eng) {
   pmrem.compileEquirectangularShader();
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
   scene.environment = envRT.texture;
-  scene.environmentIntensity = 0.55;
+  scene.environmentIntensity = 0.75;   // v9.2 明亮：提升环境反射，材质更通透精致
   pmrem.dispose();
 
   // 2) 主光（太阳）—— 柔和阴影
@@ -22,17 +22,17 @@ export function setupLighting(eng) {
   sun.shadow.radius = 3;
 
   // 3) 半球光：天空冷色 / 地面暖色，提升层次
-  hemi.color.set(0xbfd4ff);
-  hemi.groundColor.set(0x3a2f4a);
-  hemi.intensity = 0.7;
+  hemi.color.set(0xDCEEFF);      // v9.2 亮天蓝
+  hemi.groundColor.set(0xFFE6C4); // 暖反射，去暗紫
+  hemi.intensity = 0.9;
 
   // 4) 轮廓补光（冷色，从侧后打亮边缘，LOL 常用手法）
-  const rim = new THREE.DirectionalLight(0x88bbff, 0.6);
+  const rim = new THREE.DirectionalLight(0xBFE4FF, 0.45);  // v9.2 冷色轮廓光，强度降避免亮底过曝
   rim.position.set(-18, 14, -16);
   scene.add(rim);
 
   // 5) 暖色补光（模拟环境反射暖调）
-  const fill = new THREE.DirectionalLight(0xffd9a8, 0.35);
+  const fill = new THREE.DirectionalLight(0xFFE0B0, 0.28);  // v9.2 暖补光，轻描即可
   fill.position.set(12, 6, -10);
   scene.add(fill);
 

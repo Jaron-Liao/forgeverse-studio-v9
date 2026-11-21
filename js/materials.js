@@ -3,18 +3,18 @@ import { App, addXP, toast, bus } from './state.js';
 
 // PBR 材质预设库
 export const PRESETS = {
-  gold:     { color: 0xffc94d, roughness: 0.18, metalness: 1.0 },
-  silver:   { color: 0xdfe6ef, roughness: 0.12, metalness: 1.0 },
-  copper:   { color: 0xd98b5a, roughness: 0.3, metalness: 0.9 },
-  glass:    { color: 0xbfe6ff, roughness: 0.05, metalness: 0.0, transparent: true, opacity: 0.35 },
-  ceramic:  { color: 0xf2f0e6, roughness: 0.25, metalness: 0.0 },
-  plastic:  { color: 0x5cc8ff, roughness: 0.45, metalness: 0.0 },
-  wood:     { color: 0x9b6b43, roughness: 0.8, metalness: 0.0 },
-  rubber:   { color: 0x2b2b33, roughness: 0.95, metalness: 0.0 },
-  lava:     { color: 0xff4d1a, roughness: 0.6, metalness: 0.1, emissive: 0xff2a00, emissiveIntensity: 0.8 },
-  neon:     { color: 0x39ffd0, roughness: 0.3, metalness: 0.2, emissive: 0x00ffc0, emissiveIntensity: 1.2 },
-  marble:   { color: 0xe8e6e2, roughness: 0.3, metalness: 0.05 },
-  chocolate:{ color: 0x5a3418, roughness: 0.55, metalness: 0.0 },
+  gold:     { color: 0xFFC85C, roughness: 0.18, metalness: 1.0 },
+  silver:   { color: 0xF2F6FC, roughness: 0.12, metalness: 1.0 },
+  copper:   { color: 0xF0A878, roughness: 0.3, metalness: 0.9 },
+  glass:    { color: 0xD2F0FF, roughness: 0.05, metalness: 0.0, transparent: true, opacity: 0.35 },
+  ceramic:  { color: 0xFFFDF4, roughness: 0.25, metalness: 0.0 },
+  plastic:  { color: 0x7FD4F5, roughness: 0.45, metalness: 0.0 },
+  wood:     { color: 0xB5835A, roughness: 0.8, metalness: 0.0 },
+  rubber:   { color: 0x6B6B78, roughness: 0.95, metalness: 0.0 },
+  lava:     { color: 0xFF7040, roughness: 0.6, metalness: 0.1, emissive: 0xFF5A20, emissiveIntensity: 0.8 },
+  neon:     { color: 0x5FFFD8, roughness: 0.3, metalness: 0.2, emissive: 0x3AEFC0, emissiveIntensity: 1.2 },
+  marble:   { color: 0xFBF8F2, roughness: 0.3, metalness: 0.05 },
+  chocolate:{ color: 0x8A5A38, roughness: 0.55, metalness: 0.0 },
 };
 
 export function applyPreset(key) {
