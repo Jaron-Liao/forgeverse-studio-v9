@@ -1,0 +1,580 @@
+/* ============================================================
+   ForgeVerse · Theme v12 — 「Malachite & Brass」孔雀石 × 黄铜
+   ------------------------------------------------------------
+   v11 的问题不是「不高级」，是「太单调」：
+   · 所有颜色挤在 158° 一个色相带里；
+   · 背景一整块骨白，四层光斑全被 display:none 关掉；
+   · 每张缩略图都是同一款灰绿渐变。
+   结果是一个灰蒙蒙的单色界面，没有纵深、没有材质、没有焦点。
+
+   v12 不改布局（v11 的布局修复全部保留），只补三件事：
+   1) 色彩纵深：绿(158°) 打地基，青瓷(178°) 做副调，黄铜(42°) 做金属高光，
+      再垫一层暖纸底(38°)——四个色相，但只有绿色是大面积，其余全是「贵金属点缀」。
+   2) 材质：制图网格 + 四角光雾 + 孔雀石斜纹（缩略图）+ 噪点纸纹。
+   3) 焦点：金色只给「关键数字 / 主操作高光 / 卡片顶线」，让眼睛有落点。
+
+   本文件在 theme-v11.css 之后加载。
+   ============================================================ */
+
+:root{
+  /* ---- 暖纸底：去掉冷灰，换成有温度的手工纸 ---- */
+  --bg:#F4F1E8;
+  --bg-deep:#EDEADF;
+  --surface:#FFFFFF;
+  --surface-2:#EFF2EC;     /* 淡青绿：面板 / 次级块 */
+  --surface-3:#F9F5EB;     /* 淡砂：交替块 / 工具条外壳 */
+  --panel:rgba(255,255,255,.90);
+  --panel2:#EFF2EC;
+  --line:rgba(18,48,36,.11);
+  --line-strong:rgba(18,48,36,.22);
+  --hair:rgba(18,48,36,.075);
+
+  /* ---- 墨 ---- */
+  --txt:#0F231B;
+  --sub:#56695E;
+
+  /* ---- 主锚：祖母绿 ---- */
+  --acc:#0B6B4B;
+  --acc2:#0F8A62;
+  --acc-soft:#E6F1EA;
+  --accent-ink:#0A5039;
+
+  /* ---- 副调：青瓷 ---- */
+  --teal:#246B63;
+  --teal-mid:#3E8C81;
+  --teal-soft:#E2EFEC;
+  --teal-line:rgba(36,107,99,.24);
+
+  /* ---- 金属：黄铜 ---- */
+  --brass:#8A6320;          /* 文字用（暖纸底 4.5:1） */
+  --brass-deco:#C9A961;     /* 装饰用（不承载小字） */
+  --brass-light:#E3CB92;
+  --brass-soft:#F8F1DF;
+  --brass-line:rgba(201,169,97,.42);
+
+  /* ---- 兼容 v10/v11 变量名 ---- */
+  --gold:#0B6B4B; --gold2:#0F8A62; --gold-deep:#06231A;
+  --gold-glow:rgba(23,169,122,.18);
+  --mint:#9FDCC6; --jade:#0F8A62; --neon:#17A97A;
+  --violet:#246B63; --sakura:#E2EFEC; --sky:#D5E7E3;
+
+  /* ---- 阴影：暖绿墨，三档 ---- */
+  --shadow:0 20px 48px rgba(24,42,30,.13),0 2px 6px rgba(24,42,30,.06);
+  --shadow-sm:0 1px 2px rgba(24,42,30,.05),0 6px 16px rgba(24,42,30,.06);
+  --shadow-lift:0 28px 60px rgba(24,42,30,.17),0 4px 12px rgba(24,42,30,.07);
+
+  --r-sm:9px; --r-md:12px; --r-lg:16px;
+}
+
+body{background:var(--bg);color:var(--txt)}
+
+/* ============================================================
+   底：光雾 + 制图网格
+   ============================================================ */
+.wm-page{background:var(--bg)}
+.wm-bg{
+  background:
+    radial-gradient(64% 54% at 2% -10%,  rgba(4,84,57,.42), transparent 58%),
+    radial-gradient(46% 42% at 99% -14%, rgba(190,148,64,.50), transparent 56%),
+    radial-gradient(58% 48% at 92% 108%, rgba(20,100,92,.34), transparent 60%),
+    radial-gradient(68% 56% at 10% 112%, rgba(206,166,90,.38), transparent 64%),
+    linear-gradient(154deg,#F8F3E3 0%,#EDE9D9 40%,#E2E8DE 100%);
+}
+/* 光带：一条从左上斜贯到右下的天光，制造纵深 */
+.wm-bg-glow{
+  background:
+    linear-gradient(116deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.20) 18%,transparent 40%,transparent 62%,rgba(201,169,97,.12) 82%,transparent 100%),
+    radial-gradient(64% 42% at 40% -10%,rgba(255,255,255,.85),transparent 62%);
+}
+/* 制图网格：像工作台上的坐标纸，只在顶部与右侧显影 */
+.wm-bg-far,.wm-bg-mid,.wm-bg-mist{display:none}
+.wm-page::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(9,74,51,.09) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(9,74,51,.09) 1px,transparent 1px);
+  background-size:68px 68px;
+  -webkit-mask-image:radial-gradient(130% 96% at 68% -10%,#000 0%,rgba(0,0,0,.55) 42%,transparent 78%);
+  mask-image:radial-gradient(130% 96% at 68% -10%,#000 0%,rgba(0,0,0,.55) 42%,transparent 78%);
+}
+.wm-bg-vignette{background:
+  linear-gradient(180deg,rgba(255,255,255,.34),transparent 20%),
+  radial-gradient(150% 120% at 50% 0%,transparent 54%,rgba(24,42,30,.075) 100%)}
+
+/* ============================================================
+   顶栏：暖白玻璃 + 一条黄铜发丝
+   ============================================================ */
+#topbar{
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(249,247,240,.86));
+  border-bottom:1px solid rgba(201,169,97,.38);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 14px rgba(24,42,30,.045);
+}
+.logo{color:var(--acc);filter:drop-shadow(0 2px 6px rgba(11,107,75,.24))}
+
+.modes{background:var(--surface-2);border-color:var(--hair)}
+.mode.active{background:var(--acc);color:#F4FBF7;
+  box-shadow:0 6px 16px rgba(11,107,75,.26),inset 0 1px 0 rgba(227,203,146,.55)}
+
+/* ============================================================
+   控件：黄铜高光
+   ============================================================ */
+.ghost,.icon{background:linear-gradient(180deg,#FFF,#FCFAF4);border-color:var(--line)}
+.ghost:hover,.icon:hover{border-color:var(--brass-line);color:var(--accent-ink);
+  background:linear-gradient(180deg,#FFF,var(--brass-soft))}
+.icon.active{background:var(--acc-soft);border-color:rgba(11,107,75,.42)}
+.ghost:focus-visible,.icon:focus-visible,.primary:focus-visible{outline:2px solid var(--brass-deco);outline-offset:2px}
+
+.primary,.cta-gold{
+  background:linear-gradient(180deg,#0E7A55,var(--acc) 58%,#095F42);
+  border:1px solid #075039;
+  box-shadow:
+    inset 0 1px 0 rgba(227,203,146,.62),
+    inset 0 -1px 0 rgba(0,0,0,.18),
+    0 10px 24px rgba(11,107,75,.24),
+    0 1px 0 rgba(201,169,97,.35);
+}
+.primary:hover,.cta-gold:hover{
+  background:linear-gradient(180deg,#11885F,#0B6B4B 58%,#075038);
+  box-shadow:
+    inset 0 1px 0 rgba(227,203,146,.72),
+    inset 0 -1px 0 rgba(0,0,0,.2),
+    0 16px 34px rgba(11,107,75,.30),
+    0 1px 0 rgba(201,169,97,.45);
+}
+.primary:active,.cta-gold:active{background:#074A34}
+
+#topbar input,.wm-search,.wm-filters select,.wc-field select,.wc-field input,textarea,input[type="search"]{
+  background:linear-gradient(180deg,#FFF,#FCFAF4);border-color:var(--line)}
+#topbar input:focus,.wm-search:focus,.wm-filters select:focus{
+  border-color:var(--brass-line);box-shadow:0 0 0 3px rgba(201,169,97,.18)}
+
+/* ============================================================
+   三栏面板：淡青玻璃，与白卡拉开
+   ============================================================ */
+#leftbar,#rightbar,#bottombar{
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,242,236,.90));
+  border-color:var(--line);
+}
+.panel h4,.info-col h4,.t-head{color:var(--teal)}
+.panel h4::after,.info-col h4::after{content:'';display:inline-block;width:4px;height:4px;
+  border-radius:50%;background:var(--brass-deco);margin-left:7px;vertical-align:middle}
+.lib button:hover,.lib2 button:hover{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal)}
+.it.active{background:var(--teal-soft);color:var(--teal);border-color:var(--teal-line)}
+.xpbar i{background:linear-gradient(90deg,var(--acc),var(--teal-mid))}
+.t-add button{background:linear-gradient(180deg,#0E7A55,var(--acc));color:#F4FBF7;
+  box-shadow:inset 0 1px 0 rgba(227,203,146,.5)}
+#bottombar{background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(249,245,235,.9))}
+
+/* ============================================================
+   世界管理页
+   ============================================================ */
+.wm-top{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.30));
+  border-bottom:1px solid var(--hair);
+  box-shadow:0 1px 0 rgba(201,169,97,.24)}
+.wm-sigil{
+  color:var(--brass-light);
+  background:linear-gradient(155deg,#0E7A55,var(--acc) 52%,#07482F);
+  border:1px solid rgba(201,169,97,.55);
+  box-shadow:
+    inset 0 1px 0 rgba(227,203,146,.55),
+    inset 0 -1px 0 rgba(0,0,0,.24),
+    0 6px 16px rgba(11,107,75,.22);
+  font-size:13px;
+}
+.wm-h0{color:var(--txt)}
+.wm-subline{color:var(--sub);letter-spacing:2.8px}
+.wm-subline::before{content:'';display:inline-block;width:18px;height:1px;
+  background:var(--brass-deco);vertical-align:middle;margin-right:8px;opacity:.85}
+.wm-count{color:var(--sub)}
+.wm-count b{color:var(--brass);font-size:16px;font-feature-settings:"tnum"}
+
+/* Hero：绿色短横改成黄铜→祖母绿渐变，并补一条细金线 */
+.wm-hero{position:relative;overflow:hidden}
+/* 编辑感水印：超大衬线字压在标题后方，只有 5% 浓度，撑住整页的视觉重心 */
+.wm-hero::before{
+  content:'FORGE';
+  position:absolute;right:132px;top:2px;z-index:0;
+  font-family:"Didot","Bodoni MT","Times New Roman",Georgia,serif;
+  font-size:138px;line-height:1;font-weight:700;letter-spacing:8px;
+  color:rgba(9,74,51,.058);
+  pointer-events:none;user-select:none;white-space:nowrap;
+}
+.wm-hero>*{position:relative;z-index:1}
+.wm-hero-title{color:var(--txt);font-size:34px}
+.wm-hero-title::before{
+  width:40px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--brass-deco),var(--acc) 78%);
+  box-shadow:0 0 0 1px rgba(201,169,97,.18)}
+.wm-hero-title::after{
+  content:'';display:block;width:132px;height:1px;margin-top:14px;
+  background:linear-gradient(90deg,rgba(201,169,97,.65),rgba(11,107,75,.22),transparent)}
+
+/* 工具条：淡砂外壳 + 白色内嵌，不再是又一坨白 */
+.wm-tools{padding-top:4px}
+.wm-layouts{background:var(--surface);border-color:var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),var(--shadow-sm)}
+.wm-layout.active{background:var(--teal-soft);color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal-line)}
+.wm-layout:hover{background:var(--surface-3)}
+.wm-filters select,.wm-search{background:linear-gradient(180deg,#FFF,#FBF8F1)}
+.wm-search::placeholder{color:#93A398}
+
+/* ---- 卡片：白面 + 顶部生态色线 + 暖金投影 ---- */
+/* 去掉 3d.css 的六边形 clip-path（会把 16px 圆角吃掉，变成直角） */
+.wm-card{
+  clip-path:none;
+  background:
+    linear-gradient(90deg,var(--brass-deco),rgba(201,169,97,.14) 62%,transparent) top left/100% 2px no-repeat,
+    linear-gradient(180deg,#FFFFFF,#FDFBF6);
+  border-color:var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.wm-card:hover{transform:translateY(-4px);border-color:rgba(201,169,97,.46);
+  background:
+    linear-gradient(90deg,var(--brass-deco),var(--acc) 70%,transparent) top left/100% 2px no-repeat,
+    linear-gradient(180deg,#FFFFFF,#FDFBF6);
+  box-shadow:0 26px 54px rgba(24,42,30,.16),0 2px 6px rgba(24,42,30,.06)}
+.wm-card.selected{border-color:var(--acc);box-shadow:0 0 0 3px rgba(11,107,75,.13),var(--shadow-lift);
+  background:
+    linear-gradient(90deg,var(--brass-deco),var(--acc)) top left/100% 2px no-repeat,
+    linear-gradient(180deg,#FFFFFF,#FBFDFB)}
+
+/* ---- 缩略图：v11 的 [data-thumb] 把容器压成 46px 圆，150px 渐变一直没显影。
+       这里恢复成容器，印章交给 ::before(attr) ---- */
+.wm-thumb[data-thumb]{
+  width:auto;height:168px;margin:0;padding:0;
+  position:relative;left:auto;top:auto;transform:none;
+  border:0;border-radius:0;box-shadow:none;
+  display:flex;align-items:center;justify-content:center;
+  background-color:var(--surface-2);
+  font-family:"Songti SC","STSong",serif;font-size:0;letter-spacing:0;
+  color:transparent;text-shadow:none;
+}
+.wm-thumb[data-thumb]::before{
+  content:attr(data-thumb);
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;line-height:1;color:#0A3F2D;
+  background:radial-gradient(circle at 32% 26%,#FFFFFF,rgba(255,255,255,.88) 62%,rgba(248,241,223,.94));
+  border:1px solid rgba(201,169,97,.80);
+  box-shadow:0 8px 20px rgba(24,42,30,.18),inset 0 1px 0 #FFFFFF,0 0 0 4px rgba(255,255,255,.30);
+  flex:0 0 auto;
+}
+.wm-thumb[data-thumb]::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,var(--brass-deco),rgba(201,169,97,.28) 58%,transparent) top left/100% 3px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.30),transparent 44%,rgba(24,42,30,.10)),
+    radial-gradient(100% 52% at 50% 0%,rgba(255,255,255,.42),transparent 62%);
+}
+/* 印章：内圈再压一道细环，避免纯白圆太空 */
+.wm-thumb[data-thumb]::before{
+  box-shadow:
+    0 8px 20px rgba(24,42,30,.18),
+    inset 0 1px 0 #FFFFFF,
+    inset 0 0 0 3px rgba(255,255,255,.55),
+    0 0 0 1px rgba(201,169,97,.28),
+    0 0 0 5px rgba(255,255,255,.26);
+}
+
+/* 生态：三色宝石渐变 + 孔雀石斜纹（条纹与渐变写在同一层，避免伪元素争用） */
+.wm-thumb[data-biome="grass"],.biome-grass .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(11,74,53,.10) 0 1px,transparent 1px 11px,rgba(11,74,53,.045) 11px 12px,transparent 12px 30px),
+    linear-gradient(150deg,#EEF6E6,#A9D49A 44%,#63A374)}
+.wm-thumb[data-biome="snow"],.biome-snow .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(36,74,92,.09) 0 1px,transparent 1px 11px,rgba(36,74,92,.04) 11px 12px,transparent 12px 30px),
+    linear-gradient(150deg,#F2F8FB,#B4D3E6 44%,#749EB8)}
+.wm-thumb[data-biome="desert"],.biome-desert .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(124,86,30,.10) 0 1px,transparent 1px 11px,rgba(124,86,30,.045) 11px 12px,transparent 12px 30px),
+    linear-gradient(150deg,#FCF3DC,#E7C486 42%,#BE8B45)}
+.wm-thumb[data-biome="cyber"],.biome-cyber .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(16,80,74,.11) 0 1px,transparent 1px 11px,rgba(16,80,74,.05) 11px 12px,transparent 12px 30px),
+    linear-gradient(150deg,#E0F2EE,#7FBDB4 44%,#347D76)}
+
+.wm-thumb--new{
+  background-color:var(--surface-3);
+  background-image:
+    repeating-linear-gradient(118deg,rgba(138,99,32,.06) 0 1px,transparent 1px 12px,transparent 12px 32px),
+    linear-gradient(150deg,#FDF9EE,#F5EDD9 52%,#EBDCBB);
+  border-bottom:1px dashed var(--brass-line)}
+.wm-thumb--new::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 60% at 50% 44%,rgba(255,255,255,.5),transparent 70%)}
+.wm-thumb--new span{color:var(--brass);opacity:.7}
+
+.wm-card-body{padding:15px 17px 16px;
+  border-top:1px solid rgba(201,169,97,.20);
+  background:linear-gradient(180deg,rgba(255,255,255,.55),transparent 46%)}
+.wm-card-name{color:var(--txt)}
+.wm-card-name::before{content:'';display:inline-block;width:5px;height:5px;border-radius:1px;
+  background:var(--brass-deco);margin-right:8px;vertical-align:2px;transform:rotate(45deg)}
+.wm-card-meta{color:var(--sub)}
+.wm-sync[data-sync="synced"]{color:var(--teal)}
+.wm-more{background:linear-gradient(180deg,#FFF,#FAF6EE);border-color:var(--line)}
+.wm-more:hover{color:var(--brass);border-color:var(--brass-line)}
+
+.wm-card--new,.wm-card--new:hover{border:1.5px dashed rgba(138,99,32,.34);
+  background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(249,245,235,.66))}
+.wm-card--new::before{display:none}
+.wm-card--new:hover{border-color:var(--brass-deco);background:var(--surface-3)}
+
+/* 空状态：加一圈黄铜细环 */
+.wm-empty-seal{
+  color:var(--acc);border:1.5px solid var(--brass-line);
+  background:linear-gradient(160deg,#FFFFFF,var(--brass-soft));
+  box-shadow:0 0 0 6px rgba(201,169,97,.10),0 8px 20px rgba(24,42,30,.10);
+}
+.wm-empty h2{color:var(--txt)}
+.wm-empty p{color:var(--sub)}
+
+/* 状态条：淡砂 + 顶部金线 */
+/* 状态条：深祖母绿压底，页面形成「浅顶—浅中—深底」的重量分层 */
+.wm-status{
+  background:linear-gradient(180deg,#0D6749,#084A32 62%,#063D29);
+  border-top:1px solid rgba(201,169,97,.45);
+  color:rgba(233,247,240,.94);
+  box-shadow:inset 0 1px 0 rgba(227,203,146,.26),0 -6px 18px rgba(24,42,30,.08)}
+.wm-status b,.wm-storage b{color:#F2DDAE}
+.wm-status #wmSyncOverview{color:rgba(233,247,240,.82)}
+.wm-bar{background:rgba(255,255,255,.16)}
+.wm-bar>i{background:linear-gradient(90deg,var(--brass-deco),#7FECC5)}
+.wm-status .ghost{background:rgba(255,255,255,.10);border-color:rgba(227,203,146,.34);
+  color:#ECF7F1;box-shadow:none}
+.wm-status .ghost:hover{background:rgba(255,255,255,.18);border-color:rgba(227,203,146,.6);color:#FFF}
+
+/* 列表 / 时间轴布局：v11 把缩略图压到 34px，这里改成 84px 小方块 */
+.wm-worlds[data-layout="list"] .wm-thumb[data-thumb],
+.wm-worlds[data-layout="timeline"] .wm-thumb[data-thumb]{width:84px;height:84px;border-radius:10px;flex:0 0 auto}
+.wm-worlds[data-layout="list"] .wm-thumb[data-thumb]::before,
+.wm-worlds[data-layout="timeline"] .wm-thumb[data-thumb]::before{width:36px;height:36px;font-size:14px}
+
+/* ============================================================
+   新建世界配置页
+   ============================================================ */
+.wc-page{background:var(--bg)}
+.wc-top{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.28));
+  border-bottom:1px solid var(--hair);box-shadow:0 1px 0 rgba(201,169,97,.22)}
+.wc-group{
+  background:linear-gradient(180deg,#FFFFFF,#FDFBF6);
+  border-color:var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.wc-group legend{color:var(--teal)}
+.wc-group legend::before{content:'';display:inline-block;width:5px;height:5px;border-radius:1px;
+  background:var(--brass-deco);margin-right:8px;vertical-align:3px;transform:rotate(45deg)}
+.wc-inline output{color:var(--brass)}
+.wc-actions{background:linear-gradient(180deg,#0D6749,#084A32 68%,#063D29);
+  border-top:1px solid rgba(201,169,97,.45);
+  box-shadow:inset 0 1px 0 rgba(227,203,146,.26)}
+.wc-bswatch{box-shadow:inset 0 0 0 1px rgba(24,42,30,.10),inset 0 1px 0 rgba(255,255,255,.5)}
+.biome-grass .wc-bswatch{background:linear-gradient(150deg,#EEF6E6,#A9D49A 44%,#63A374)}
+.biome-snow .wc-bswatch{background:linear-gradient(150deg,#F2F8FB,#B4D3E6 44%,#749EB8)}
+.biome-desert .wc-bswatch{background:linear-gradient(150deg,#FCF3DC,#E7C486 42%,#BE8B45)}
+.biome-cyber .wc-bswatch{background:linear-gradient(150deg,#E0F2EE,#7FBDB4 44%,#347D76)}
+.wc-biome.selected,.wc-biome.active{border-color:var(--brass-line);background:var(--brass-soft)}
+
+/* ============================================================
+   创作向导：卡片加黄铜内框，选项 chip 走青瓷
+   ============================================================ */
+#fv-guide .gv-btn--primary{
+  background:linear-gradient(180deg,#0E7A55,var(--acc) 58%,#095F42);
+  border-color:#075039;color:#F4FBF7;
+  box-shadow:inset 0 1px 0 rgba(227,203,146,.6),0 8px 20px rgba(11,107,75,.24)}
+#fv-guide .gv-btn--primary:hover{background:linear-gradient(180deg,#11885F,#0B6B4B 58%,#075038)}
+#fv-guide .gv-mark{background:linear-gradient(160deg,var(--acc),var(--teal-mid))}
+#fv-guide .gv-chip{background:var(--brass-soft);border-color:var(--brass-line);color:var(--brass)}
+.gv-ch-n{color:var(--brass)}
+.gv-ch.on .gv-ch-n{color:var(--acc)}
+.gv-opt.on{border-color:var(--acc);background:linear-gradient(180deg,#FFFFFF,var(--acc-soft))}
+.gv-set-h{color:var(--teal)}
+.gv-note-ico{color:var(--brass)}
+.gv-note{background:linear-gradient(180deg,#FFFFFF,#FBF7EE)}
+.gv-note-act{background:linear-gradient(180deg,#0E7A55,var(--acc));border-color:#075039;
+  box-shadow:inset 0 1px 0 rgba(227,203,146,.5)}
+#fv-guide-open .fv-guide-open-icon{color:var(--brass)}
+#fv-guide-open:hover .fv-guide-open-icon{color:var(--acc)}
+
+/* 引导层 day/dusk 令牌换成暖纸 */
+#fv-guide[data-light="day"]{
+  --gv-s1:#FFFFFF; --gv-s2:#FBF7EE; --gv-ink:#0F231B; --gv-muted:#56695E;
+  --gv-line:rgba(18,48,36,.11); --gv-line-strong:rgba(18,48,36,.22);
+  --gv-fill:#0B6B4B; --gv-fill-2:#0F8A62; --gv-ink-acc:#0A5039; --gv-soft:#E6F1EA;
+  --gv-opt:#FFFFFF; --gv-opt-hover:#FAF8F1; --gv-chip:#F8F1DF;
+  --gv-backdrop:rgba(244,241,232,.92);
+  --gv-shadow:0 32px 76px rgba(24,42,30,.18),0 2px 8px rgba(24,42,30,.06);
+}
+#fv-guide[data-light="dusk"]{
+  --gv-s1:#FFFDF7; --gv-s2:#F7F2E4; --gv-ink:#14261E; --gv-muted:#4E6157;
+  --gv-fill:#0B6B4B; --gv-fill-2:#0F8A62; --gv-ink-acc:#0A5039; --gv-soft:#F0EDDD;
+  --gv-opt:#FFFDF7; --gv-opt-hover:#FBF7EA; --gv-chip:#F5EFDF;
+  --gv-backdrop:rgba(247,243,232,.93);
+}
+#fv-guide[data-light="day"]{background:
+  radial-gradient(60% 50% at 12% 0%,rgba(11,107,75,.10),transparent 62%),
+  radial-gradient(50% 44% at 90% 4%,rgba(201,169,97,.16),transparent 62%),
+  radial-gradient(56% 46% at 76% 100%,rgba(36,107,99,.10),transparent 64%),
+  var(--gv-backdrop)}
+#fv-guide[data-light="dusk"]{background:
+  radial-gradient(58% 46% at 10% 0%,rgba(11,107,75,.09),transparent 62%),
+  radial-gradient(52% 46% at 88% 6%,rgba(201,169,97,.20),transparent 64%),
+  var(--gv-backdrop)}
+/* 壳：顶部一道金色高光 */
+.gv-shell::before{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(248,241,223,.18) 22%,transparent 42%)}
+
+/* ============================================================
+   夜间：深孔雀石，黄铜提亮成真金
+   ============================================================ */
+body[data-fv-theme="night"]{
+  --bg:#08130F; --bg-deep:#060F0B;
+  --surface:#10241C; --surface-2:#0C1B15; --surface-3:#132A20;
+  --panel:rgba(16,36,28,.92); --panel2:#0C1B15;
+  --line:rgba(159,220,198,.14); --line-strong:rgba(159,220,198,.26); --hair:rgba(159,220,198,.10);
+  --txt:#E9F5EF; --sub:#9CB6A9;
+  --acc-soft:rgba(23,169,122,.18); --accent-ink:#7FEBC5;
+  --teal:#79C6BA; --teal-mid:#4E9C91; --teal-soft:rgba(78,156,145,.18); --teal-line:rgba(121,198,186,.30);
+  --brass:#E0C489; --brass-deco:#D6B36C; --brass-light:#F0DDAF; --brass-soft:rgba(214,179,108,.12);
+  --brass-line:rgba(214,179,108,.34);
+  --shadow:0 20px 48px rgba(0,0,0,.44),0 2px 6px rgba(0,0,0,.3);
+  --shadow-sm:0 6px 16px rgba(0,0,0,.32);
+  --shadow-lift:0 28px 64px rgba(0,0,0,.52),0 4px 12px rgba(0,0,0,.34);
+}
+body[data-fv-theme="night"] .wm-bg{background:
+  radial-gradient(58% 46% at 8% 2%,rgba(23,169,122,.20),transparent 62%),
+  radial-gradient(46% 38% at 92% -4%,rgba(214,179,108,.14),transparent 60%),
+  radial-gradient(56% 46% at 82% 96%,rgba(78,156,145,.20),transparent 64%),
+  linear-gradient(166deg,#0B1A14,#08130F 52%,#0A1712)}
+/* 夜间天光：白光照到夜里会变成一条白带，换成金绿微光 */
+body[data-fv-theme="night"] .wm-bg-glow{
+  background:
+    linear-gradient(116deg,rgba(214,179,108,.07) 0%,transparent 26%,transparent 62%,rgba(47,191,142,.06) 82%,transparent 100%),
+    radial-gradient(64% 42% at 40% -10%,rgba(47,191,142,.16),transparent 64%);
+}
+body[data-fv-theme="night"] .wm-bg-vignette{background:
+  linear-gradient(180deg,rgba(159,220,198,.05),transparent 18%),
+  radial-gradient(150% 120% at 50% 0%,transparent 52%,rgba(0,0,0,.34) 100%)}
+/* 夜间状态条：深绿在近黑背景上会糊成一片，改中性深色 + 金线分隔 */
+body[data-fv-theme="night"] .wm-status{
+  background:linear-gradient(180deg,#12291F,#0A1A13);
+  border-top:1px solid rgba(214,179,108,.32);
+  color:rgba(233,247,240,.88);
+  box-shadow:inset 0 1px 0 rgba(214,179,108,.14)}
+body[data-fv-theme="night"] .wm-status b,
+body[data-fv-theme="night"] .wm-storage b{color:#EBD5A4}
+body[data-fv-theme="night"] .wm-status .ghost{background:rgba(255,255,255,.07);
+  border-color:rgba(214,179,108,.28);color:#E9F5EF}
+body[data-fv-theme="night"] .wc-actions{
+  background:linear-gradient(180deg,#12291F,#0A1A13);
+  border-top:1px solid rgba(214,179,108,.32);
+  box-shadow:inset 0 1px 0 rgba(214,179,108,.14)}
+body[data-fv-theme="night"] .wm-page::before{
+  background-image:
+    linear-gradient(rgba(159,220,198,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(159,220,198,.055) 1px,transparent 1px);
+}
+body[data-fv-theme="night"] #topbar{background:linear-gradient(180deg,rgba(16,36,28,.96),rgba(10,23,18,.9))}
+body[data-fv-theme="night"] #topbar::after{background:linear-gradient(90deg,transparent,rgba(214,179,108,.42) 24%,rgba(23,169,122,.24) 56%,rgba(214,179,108,.38) 80%,transparent)}
+body[data-fv-theme="night"] .wm-top,
+body[data-fv-theme="night"] .wc-top{background:linear-gradient(180deg,rgba(16,36,28,.8),transparent);
+  border-bottom-color:var(--line);box-shadow:0 1px 0 rgba(214,179,108,.16)}
+body[data-fv-theme="night"] .wm-status,
+body[data-fv-theme="night"] .wc-actions{background:linear-gradient(180deg,rgba(12,27,21,.94),rgba(8,19,15,.96));
+  border-top-color:var(--line);box-shadow:inset 0 1px 0 rgba(214,179,108,.16)}
+body[data-fv-theme="night"] .wm-card{background:linear-gradient(180deg,#12291F,#0E2019);
+  border-color:var(--line);box-shadow:var(--shadow-sm)}
+body[data-fv-theme="night"] .wm-card:hover{border-color:var(--brass-line);
+  box-shadow:0 26px 54px rgba(0,0,0,.5),0 0 0 1px rgba(214,179,108,.14)}
+body[data-fv-theme="night"] .wm-card-body{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent 44%)}
+body[data-fv-theme="night"] .wm-thumb[data-thumb]{background-color:#132A20}
+body[data-fv-theme="night"] .wm-thumb[data-thumb]::after{background:
+  linear-gradient(180deg,rgba(214,179,108,.10),transparent 44%,rgba(0,0,0,.34)),
+  radial-gradient(100% 52% at 50% 0%,rgba(214,179,108,.10),transparent 62%)}
+body[data-fv-theme="night"] .wm-thumb[data-thumb]::before{
+  color:#F0E3C4;
+  background:radial-gradient(circle at 32% 26%,rgba(46,86,68,.98),rgba(20,44,34,.96));
+  border-color:rgba(214,179,108,.55);
+  box-shadow:0 8px 20px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 4px rgba(214,179,108,.10)}
+body[data-fv-theme="night"] .wm-thumb[data-biome="grass"],body[data-fv-theme="night"] .biome-grass .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(159,220,198,.06) 0 1px,transparent 1px 11px,transparent 11px 30px),
+    linear-gradient(150deg,#1E4432,#26563E 48%,#2F6A4C)}
+body[data-fv-theme="night"] .wm-thumb[data-biome="snow"],body[data-fv-theme="night"] .biome-snow .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(159,220,198,.06) 0 1px,transparent 1px 11px,transparent 11px 30px),
+    linear-gradient(150deg,#1F3D49,#26505D 48%,#2F6474)}
+body[data-fv-theme="night"] .wm-thumb[data-biome="desert"],body[data-fv-theme="night"] .biome-desert .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(214,179,108,.07) 0 1px,transparent 1px 11px,transparent 11px 30px),
+    linear-gradient(150deg,#3D3119,#4F3E1F 48%,#634D25)}
+body[data-fv-theme="night"] .wm-thumb[data-biome="cyber"],body[data-fv-theme="night"] .biome-cyber .wm-thumb{
+  background-image:
+    repeating-linear-gradient(118deg,rgba(159,220,198,.06) 0 1px,transparent 1px 11px,transparent 11px 30px),
+    linear-gradient(150deg,#143833,#1B4C46 48%,#236059)}
+body[data-fv-theme="night"] .biome-grass .wc-bswatch{background:linear-gradient(150deg,#1D4030,#2C6246)}
+body[data-fv-theme="night"] .biome-snow .wc-bswatch{background:linear-gradient(150deg,#1E3A44,#2C5A68)}
+body[data-fv-theme="night"] .biome-desert .wc-bswatch{background:linear-gradient(150deg,#3A2E17,#5C4822)}
+body[data-fv-theme="night"] .biome-cyber .wc-bswatch{background:linear-gradient(150deg,#143632,#215A54)}
+body[data-fv-theme="night"] .wc-group{background:linear-gradient(180deg,#10241C,#0C1B15);
+  border-color:var(--line)}
+body[data-fv-theme="night"] .ghost,
+body[data-fv-theme="night"] .icon{background:linear-gradient(180deg,#132A20,#0E2019)}
+body[data-fv-theme="night"] .gv-note{background:linear-gradient(180deg,#132A20,#0E2019)}
+body[data-fv-theme="night"] .logo{color:#5FE3AE}
+
+/* 夜间引导层 */
+#fv-guide[data-light="night"]{
+  --gv-s1:#10241C; --gv-s2:#0A1812; --gv-ink:#E9F5EF; --gv-muted:#9CB6A9;
+  --gv-line:rgba(159,220,198,.16); --gv-line-strong:rgba(214,179,108,.30);
+  --gv-fill:#2FBF8E; --gv-fill-2:#4FD3A4; --gv-ink-acc:#7FEBC5; --gv-soft:rgba(47,191,142,.18);
+  --gv-opt:rgba(16,36,28,.94); --gv-opt-hover:rgba(22,48,37,.96); --gv-chip:rgba(214,179,108,.12);
+  --gv-backdrop:rgba(5,12,9,.88);
+}
+#fv-guide[data-light="night"]{background:
+  radial-gradient(60% 50% at 10% 0%,rgba(47,191,142,.14),transparent 62%),
+  radial-gradient(52% 46% at 90% 4%,rgba(214,179,108,.12),transparent 62%),
+  radial-gradient(56% 46% at 74% 100%,rgba(78,156,145,.14),transparent 64%),
+  var(--gv-backdrop)}
+body[data-fv-theme="night"] .gv-shell::before{background:linear-gradient(180deg,rgba(214,179,108,.10),transparent 34%)}
+
+/* ============================================================
+   动效
+   ============================================================ */
+.wm-card,.wm-layout,.ghost,.icon,.primary,.cta-gold{transition-timing-function:cubic-bezier(.22,.61,.36,1)}
+@keyframes v12-sheen{0%{background-position:-140% 0}100%{background-position:240% 0}}
+.primary:hover,.cta-gold:hover{
+  background-image:linear-gradient(100deg,#0E7A55 0%,#11885F 34%,#0F8A62 52%,#0B6B4B 76%,#095F42 100%);
+  background-size:200% 100%;animation:v12-sheen 2.6s linear infinite}
+@media(prefers-reduced-motion:reduce){
+  .primary:hover,.cta-gold:hover{animation:none;background-image:linear-gradient(180deg,#11885F,#0B6B4B 58%,#075038)}
+  .wm-card:hover{transform:none}
+}
+
+@media(max-width:1200px){
+  .wm-hero-title{font-size:28px}
+  .wm-page::before{background-size:52px 52px}
+}
+
+
+/* 开场精灵：emoji 高饱和会跳出绿金体系，降饱和 + 加一圈绿光衬底 */
+/* emoji 天生高饱和，先把彩度压掉再整体旋到翡翠色相，变成「单色绿精灵」 */
+.gv-intro-pet{
+  filter:sepia(.62) hue-rotate(80deg) saturate(1.05) contrast(.94)
+         drop-shadow(0 10px 22px rgba(24,42,30,.18));
+  background:radial-gradient(circle at 50% 54%,rgba(11,107,75,.12),transparent 64%);
+  border-radius:50%;
+}
+/* 四个入口：序号改金色，卡片加暖纸面，避免四块纯白并排 */
+.gv-step{border-color:var(--line);background:linear-gradient(180deg,#FFFFFF,#FCFAF4)}
+.gv-step:hover{border-color:var(--brass-line);background:linear-gradient(180deg,#FFFFFF,var(--brass-soft))}
+.gv-steps .gv-step i{color:var(--brass);background:var(--brass-soft);
+  box-shadow:inset 0 0 0 1px rgba(201,169,97,.35)}
+.gv-intro-h em{color:var(--acc);font-style:normal}
+
+/* ============================================================
+   底部操作台：信息台被 flex 压到 30px 会竖排成「信/息/台」
+   ============================================================ */
+.infobar{overflow-x:auto;scrollbar-width:thin}
+.info-col{min-width:118px}
+.info-col h4{white-space:nowrap;color:var(--teal);letter-spacing:.8px}
+.info-col:first-child{flex:1.35 1 auto}

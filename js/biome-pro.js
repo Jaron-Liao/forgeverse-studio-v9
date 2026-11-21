@@ -41,11 +41,11 @@ const DESERT_B = {
   // 多层沙岩民居：带拱门、窗洞、平顶、外墙纹理色差
   sandstone() {
     const g = new THREE.Group();
-    const body = mesh(shade(new THREE.BoxGeometry(5, 3.4, 4.2, 4, 3, 4), 0xFFE0A3, 0xD9984F), mat(0xffffff, 0.95, 0.02, { vertexColors: true }));
+    const body = mesh(shade(new THREE.BoxGeometry(5, 3.4, 4.2, 4, 3, 4), 0xEEDDB8, 0xE6D6B4), mat(0xffffff, 0.95, 0.02, { vertexColors: true }));
     body.position.y = 1.7; g.add(body);
     // 女儿墙（平顶边缘）
-    for (const x of [-2.4, 2.4]) { const w = mesh(new THREE.BoxGeometry(0.3, 0.6, 4.4), mat(0xF5C46B, 0.95)); w.position.set(x, 3.6, 0); g.add(w); }
-    for (const z of [-2.0, 2.0]) { const w = mesh(new THREE.BoxGeometry(5, 0.6, 0.3), mat(0xF5C46B, 0.95)); w.position.set(0, 3.6, z); g.add(w); }
+    for (const x of [-2.4, 2.4]) { const w = mesh(new THREE.BoxGeometry(0.3, 0.6, 4.4), mat(0xD6B67E, 0.95)); w.position.set(x, 3.6, 0); g.add(w); }
+    for (const z of [-2.0, 2.0]) { const w = mesh(new THREE.BoxGeometry(5, 0.6, 0.3), mat(0xD6B67E, 0.95)); w.position.set(0, 3.6, z); g.add(w); }
     // 拱门（半圆顶 + 门柱）
     const arch = mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.25, 16, 1, false, 0, Math.PI), mat(0xB08350, 0.95));
     arch.rotation.z = Math.PI / 2; arch.rotation.y = Math.PI / 2; arch.position.set(0, 2.1, 2.15); g.add(arch);
@@ -54,14 +54,14 @@ const DESERT_B = {
     for (const x of [-1.6, 1.6]) {
       const win = mesh(new THREE.BoxGeometry(0.7, 0.9, 0.12), mat(0x8A6B45, 0.9));
       win.position.set(x, 2.0, 2.12); g.add(win);
-      const ledge = mesh(new THREE.BoxGeometry(0.9, 0.1, 0.3), mat(0xF5C46B, 0.95)); ledge.position.set(x, 1.5, 2.2); g.add(ledge);
+      const ledge = mesh(new THREE.BoxGeometry(0.9, 0.1, 0.3), mat(0xD6B67E, 0.95)); ledge.position.set(x, 1.5, 2.2); g.add(ledge);
     }
     return g;
   },
   // 军事哨站：塔楼 + 围栏 + 沙袋
   outpost() {
     const g = new THREE.Group();
-    const tower = mesh(shade(new THREE.CylinderGeometry(1.6, 2.1, 6, 12), 0xF5C46B, 0xD9984F), mat(0xffffff, 0.9, 0.05, { vertexColors: true }));
+    const tower = mesh(shade(new THREE.CylinderGeometry(1.6, 2.1, 6, 12), 0xD6B67E, 0xE6D6B4), mat(0xffffff, 0.9, 0.05, { vertexColors: true }));
     tower.position.y = 3; g.add(tower);
     const deck = mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.25, 12), mat(0xB08350, 0.9)); deck.position.y = 6.1; g.add(deck);
     // 瞭望窗
@@ -169,7 +169,7 @@ const PRO_DECOR = {
     const g = new THREE.Group();
     for (let i = 0; i < 3; i++) {
       const d = mesh(shade(new THREE.SphereGeometry(3 - i * 0.5, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
-        i === 0 ? 0xFFE0A3 : 0xF5C46B, 0xD9984F), mat(0xffffff, 1, 0, { vertexColors: true }));
+        i === 0 ? 0xEEDDB8 : 0xD6B67E, 0xE6D6B4), mat(0xffffff, 1, 0, { vertexColors: true }));
       d.scale.set(1.6, 0.35, 1); d.position.set(i * 1.8 - 1.8, 0, i * 0.6); g.add(d);
     }
     return g;
@@ -179,7 +179,7 @@ const PRO_DECOR = {
     const g = new THREE.Group();
     for (let i = 0; i < 3; i++) {
       const layer = mesh(new THREE.CylinderGeometry(1.5 - i * 0.25, 1.7 - i * 0.2, 0.9, 7),
-        mat([0xE0A878, 0xD9984F, 0xC08450][i], 0.98));
+        mat([0xE0A878, 0xE6D6B4, 0xC08450][i], 0.98));
       layer.position.y = 0.45 + i * 0.88; layer.rotation.y = i * 0.3; g.add(layer);
     }
     return g;
@@ -262,9 +262,9 @@ function desertPalm() {
 function oasis() {
   const g = new THREE.Group();
   const water = mesh(new THREE.CircleGeometry(3.2, 32).rotateX(-Math.PI / 2),
-    mat(0x6DE0F0, 0.15, 0.3, { transparent: true, opacity: 0.85, emissive: 0x2A9BB8, emissiveIntensity: 0.3 }), false, true);
+    mat(0x6DB4AC, 0.15, 0.3, { transparent: true, opacity: 0.85, emissive: 0x2A9BB8, emissiveIntensity: 0.3 }), false, true);
   water.position.y = 0.05; g.add(water);
-  const ring = mesh(new THREE.TorusGeometry(3.2, 0.25, 8, 32).rotateX(-Math.PI / 2), mat(0xF5C46B, 0.95));
+  const ring = mesh(new THREE.TorusGeometry(3.2, 0.25, 8, 32).rotateX(-Math.PI / 2), mat(0xD6B67E, 0.95));
   ring.position.y = 0.08; g.add(ring);
   return g;
 }
@@ -327,10 +327,10 @@ function meadowBush() {
 // ============================================================
 function neonTower() {
   const g = new THREE.Group();
-  const body = mesh(shade(new THREE.BoxGeometry(5, 16, 5, 3, 6, 3), 0x6FD8C8, 0x3F9E8C),
+  const body = mesh(shade(new THREE.BoxGeometry(5, 16, 5, 3, 6, 3), 0xC2DAD3, 0xAECFC7),
     mat(0xffffff, 0.4, 0.5, { vertexColors: true }));
   body.position.y = 8; g.add(body);
-  const stripColors = [0x06B6D4, 0x6EE7B7, 0x6DE0F0];
+  const stripColors = [0x06B6D4, 0x6EE7B7, 0x6DB4AC];
   for (let i = 0; i < 6; i++) {
     const strip = mesh(new THREE.BoxGeometry(5.12, 0.18, 0.12),
       mat(stripColors[i % 3], 0.2, 0.1, { emissive: stripColors[i % 3], emissiveIntensity: 1.4 }), false, false);
@@ -344,13 +344,13 @@ function neonTower() {
 
 function neonSign() {
   const g = new THREE.Group();
-  const pole = mesh(new THREE.BoxGeometry(0.16, 3, 0.16), mat(0x4FB8A8, 0.5, 0.7));
+  const pole = mesh(new THREE.BoxGeometry(0.16, 3, 0.16), mat(0x7FB0A6, 0.5, 0.7));
   pole.position.y = 1.5; g.add(pole);
   const panel = mesh(new THREE.BoxGeometry(2.4, 1.3, 0.12),
-    mat(0x3F9E8C, 0.3, 0.2, { emissive: 0x6FD8C8, emissiveIntensity: 0.9 }));
+    mat(0xAECFC7, 0.3, 0.2, { emissive: 0xC2DAD3, emissiveIntensity: 0.9 }));
   panel.position.y = 3.4; g.add(panel);
   const glow = mesh(new THREE.BoxGeometry(2.1, 0.16, 0.14),
-    mat(0x6DE0F0, 0.2, 0.1, { emissive: 0x6DE0F0, emissiveIntensity: 1.6 }), false, false);
+    mat(0x6DB4AC, 0.2, 0.1, { emissive: 0x6DB4AC, emissiveIntensity: 1.6 }), false, false);
   glow.position.set(0, 3.4, 0.1); g.add(glow);
   return g;
 }
@@ -358,20 +358,20 @@ function neonSign() {
 function holoPillar() {
   const g = new THREE.Group();
   const beam = mesh(new THREE.CylinderGeometry(0.5, 0.5, 5, 16, 1, true),
-    mat(0x6DE0F0, 0.15, 0, { transparent: true, opacity: 0.35, emissive: 0x06B6D4, emissiveIntensity: 1.1, side: THREE.DoubleSide }), false, false);
+    mat(0x6DB4AC, 0.15, 0, { transparent: true, opacity: 0.35, emissive: 0x06B6D4, emissiveIntensity: 1.1, side: THREE.DoubleSide }), false, false);
   beam.position.y = 2.5; g.add(beam);
-  const base = mesh(new THREE.CylinderGeometry(0.8, 1, 0.4, 16), mat(0x3F9E8C, 0.5, 0.6));
+  const base = mesh(new THREE.CylinderGeometry(0.8, 1, 0.4, 16), mat(0xAECFC7, 0.5, 0.6));
   base.position.y = 0.2; g.add(base);
   return g;
 }
 
 function neonRoad() {
   const g = new THREE.Group();
-  const road = mesh(new THREE.BoxGeometry(9, 0.12, 28), mat(0x2A7A6E, 0.4, 0.3));
+  const road = mesh(new THREE.BoxGeometry(9, 0.12, 28), mat(0xDBE9E4, 0.4, 0.3));
   road.position.y = 0.06; g.add(road);
   for (const x of [-4.2, 4.2]) {
     const line = mesh(new THREE.BoxGeometry(0.16, 0.03, 28),
-      mat(0x6DE0F0, 0.2, 0.1, { emissive: 0x6DE0F0, emissiveIntensity: 1.5 }), false, false);
+      mat(0x6DB4AC, 0.2, 0.1, { emissive: 0x6DB4AC, emissiveIntensity: 1.5 }), false, false);
     line.position.set(x, 0.14, 0); g.add(line);
   }
   for (let i = 0; i < 9; i++) {
@@ -388,14 +388,14 @@ function neonRoad() {
 export function registerProBiomes() {
   registerBiome('desert', {
     label: '沙漠·PUBG沙盒',
-    terrain: { low: 0xFFE0A3, mid: 0xF5C46B, high: 0xD9984F, peak: 0xFFF8E8, sky: 0xFFDCA8, water: 0x5CC8D8, height: 3.2 },
+    terrain: { low: 0xEEDDB8, mid: 0xD6B67E, high: 0xE6D6B4, peak: 0xF6EFDC, sky: 0xEFE6D0, water: 0x8CBDB4, height: 3.2 },
     buildings: [DESERT_B.sandstone, DESERT_B.outpost, DESERT_B.oilrig],
     decor: [PRO_DECOR.dune, PRO_DECOR.mesa, desertPalm, oasis, () => PRO_DECOR.tent(0xD8945F), PRO_DECOR.flag],
     road: () => desertRoad(),
   });
   registerBiome('snow', {
     label: '雪地·极地战场',
-    terrain: { low: 0xE8F6FF, mid: 0xD2EAFF, high: 0xF4FAFF, peak: 0xFFFFFF, sky: 0xBFE8FF, water: 0x6CC8F0, height: 4.2 },
+    terrain: { low: 0xE2EAF0, mid: 0xC8D9E4, high: 0xE8F0F5, peak: 0xFFFFFF, sky: 0xE2EAEF, water: 0x9DBFD0, height: 4.2 },
     buildings: [SNOW_B.lodge, SNOW_B.iceCave, SNOW_B.station],
     decor: [snowPine, PRO_DECOR.snowdrift, PRO_DECOR.icecrack, () => PRO_DECOR.tent(0xB0BCCE), PRO_DECOR.flag],
     road: () => snowRoad(),
@@ -403,7 +403,7 @@ export function registerProBiomes() {
   // 草原：绿意地形 + 村舍/谷仓 + 林地装饰；公路复用 biomes.js 的 roadSegment。
   registerBiome('grass', {
     label: '草原·绿意村落',
-    terrain: { low: 0x6EE7A8, mid: 0x34C47A, high: 0x8FD8A8, peak: 0xFFFFFF, sky: 0xA7E8F5, water: 0x38BDF8, height: 2.2 },
+    terrain: { low: 0xC2D3AB, mid: 0x9DBA86, high: 0xCEDCBB, peak: 0xFFFFFF, sky: 0xEBE7D6, water: 0x8CBDB1, height: 2.2 },
     buildings: [meadowCottage, meadowBarn, meadowCottage],
     decor: [meadowTree, meadowBush, () => PRO_DECOR.tent(0x8FD96B), PRO_DECOR.flag],
     road: () => BIOMES.urban.road(),
@@ -411,7 +411,7 @@ export function registerProBiomes() {
   // 赛博：霓虹夜景；复用都市建筑的写字楼/便利店与路灯/广告牌工厂。
   registerBiome('cyber', {
     label: '赛博·霓虹夜城',
-    terrain: { low: 0x3F9E8C, mid: 0x4FB8A8, high: 0x6FD8C8, peak: 0xA8F0E0, sky: 0x2A7A6E, water: 0x6DE0F0, height: 1.6 },
+    terrain: { low: 0xAECFC7, mid: 0x7FB0A6, high: 0xC2DAD3, peak: 0xE6F1ED, sky: 0xDBE9E4, water: 0x6DB4AC, height: 1.6 },
     buildings: [BIOMES.urban.buildings[1], neonTower, BIOMES.urban.buildings[2]],
     decor: [BIOMES.urban.decor[2], neonSign, holoPillar, BIOMES.urban.decor[0]],
     road: () => neonRoad(),
@@ -429,7 +429,7 @@ function desertRoad() {
     dash.position.set(0, 0.13, -11 + i * 2.8); g.add(dash);
   }
   for (const x of [-3.4, 3.4]) {
-    const sand = mesh(new THREE.SphereGeometry(1.2, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xF5C46B, 1));
+    const sand = mesh(new THREE.SphereGeometry(1.2, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xD6B67E, 1));
     sand.scale.set(1, 0.25, 6); sand.position.set(x, 0.05, 0); g.add(sand);
   }
   return g;

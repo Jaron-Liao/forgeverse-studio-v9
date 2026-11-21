@@ -63,7 +63,8 @@
 index.html          # 入口 + importmap
 css/3d.css          # UI 骨架样式（基础变量 + 布局）
 css/guide.css       # 创作向导层样式
-css/theme-v11.css   # 主题层 v11「深祖母绿 × 骨白」，最后加载，统一收口
+css/theme-v11.css   # 主题层 v11「深祖母绿 × 骨白」（布局修复保留）
+css/theme-v12.css   # 主题层 v12「孔雀石 × 黄铜」，最后加载：色彩纵深 + 材质 + 焦点
 js/
   state.js          # 状态 + 事件总线
   guide-data.js     # 创作向导 30 问题库 + 默认值 + 绿系配色

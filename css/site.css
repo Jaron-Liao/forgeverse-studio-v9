@@ -98,10 +98,11 @@ h3 { font-size: 18px; }
 
 /* 生态色块：沿用 3d.css 既有渐变，不新增 rogue 色值 */
 .site-eco-art { height: 140px; position: relative; }
-.site-eco-art[data-biome="grass"]  { background: linear-gradient(160deg, #6EE7A8, #34C47A); }
-.site-eco-art[data-biome="snow"]   { background: linear-gradient(160deg, #E8F6FF, #D2EAFF); }
-.site-eco-art[data-biome="desert"] { background: linear-gradient(160deg, #FFE0A3, #F5C46B); }
-.site-eco-art[data-biome="cyber"]  { background: linear-gradient(160deg, #3F9E8C, #4FB8A8); }
+/* v12：荧光四色 → 与工作台一致的宝石色（同一套生态渐变，避免站内两套绿） */
+.site-eco-art[data-biome="grass"]  { background: linear-gradient(160deg, #EEF6E6, #A9D49A 52%, #63A374); }
+.site-eco-art[data-biome="snow"]   { background: linear-gradient(160deg, #F2F8FB, #B4D3E6 52%, #749EB8); }
+.site-eco-art[data-biome="desert"] { background: linear-gradient(160deg, #FCF3DC, #E7C486 52%, #BE8B45); }
+.site-eco-art[data-biome="cyber"]  { background: linear-gradient(160deg, #E0F2EE, #7FBDB4 52%, #347D76); }
 .site-eco-tag {
   position: absolute; left: 12px; bottom: 12px;
   padding: 4px 12px; border-radius: 999px; font-size: 12px;
@@ -112,11 +113,12 @@ h3 { font-size: 18px; }
 .site-hero {
   position: relative; overflow: hidden;
   padding: 72px 0 64px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(201,169,97,.34);
   background:
-    radial-gradient(60% 80% at 80% -10%, rgba(16, 185, 129, .16), transparent 60%),
-    radial-gradient(50% 70% at 10% 110%, rgba(6, 182, 212, .12), transparent 60%),
-    var(--bg);
+    radial-gradient(56% 76% at 4% -10%, rgba(11,107,75,.17), transparent 62%),
+    radial-gradient(46% 68% at 96% -14%, rgba(201,169,97,.24), transparent 60%),
+    radial-gradient(54% 72% at 86% 112%, rgba(36,107,99,.15), transparent 64%),
+    linear-gradient(180deg, #F8F4E7, var(--bg));
 }
 .site-hero-inner { position: relative; z-index: 1; text-align: center; }
 .site-hero h1 { margin: 12px 0 8px; color: var(--gold2); text-shadow: 0 2px 30px var(--gold-glow); }

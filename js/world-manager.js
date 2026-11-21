@@ -667,7 +667,12 @@ export function renderManager() {
     set('[data-thumb]', BIOME_MARK[w.biome] || '◆');
     // 缩略图按生态上色（CSS 里是 .wm-thumb[data-biome=...]，此前未写入导致卡片底色空白）
     const thumbEl = card.querySelector('[data-thumb]');
-    if (thumbEl && w.biome) thumbEl.dataset.biome = w.biome;
+    if (thumbEl) {
+      if (w.biome) thumbEl.dataset.biome = w.biome;
+      // 印章文字同时写进属性：theme-v12 用 ::before{content:attr(data-thumb)} 渲染居中印章，
+      // 只写 textContent 的话属性值为空，印章会是个白圆（无字）。
+      thumbEl.dataset.thumb = BIOME_MARK[w.biome] || '◆';
+    }
     const timeEl = card.querySelector('[data-opened]');
     if (timeEl) {
       timeEl.textContent = relTime(w.openedAt || w.updatedAt);

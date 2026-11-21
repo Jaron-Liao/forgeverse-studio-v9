@@ -82,7 +82,7 @@ const BUILDINGS = {
     const g = new THREE.Group();
     const b = box(5, 12, 5, 0x9FB8AA, 0.7, 0.15); b.position.y = 6;
     for (let y = 1; y < 6; y++) for (let x = -1; x <= 1; x++) {
-      const w = box(0.8, 1.1, 0.08, 0xA8F0E0, 0.2, 0.3);
+      const w = box(0.8, 1.1, 0.08, 0xE6F1ED, 0.2, 0.3);
       w.material.emissive = new THREE.Color(0x06B6D4); w.material.emissiveIntensity = 0.35;
       w.position.set(x * 1.5, y * 1.9, 2.55); g.add(w);
     }
@@ -91,7 +91,7 @@ const BUILDINGS = {
   office() {
     const g = new THREE.Group();
     const b = box(6, 18, 6, 0x9FB8AA, 0.35, 0.55); b.position.y = 9;
-    const glass = box(6.1, 17, 6.1, 0xA8F0E0, 0.1, 0.2);
+    const glass = box(6.1, 17, 6.1, 0xE6F1ED, 0.1, 0.2);
     glass.material.transparent = true; glass.material.opacity = 0.35; glass.position.y = 9;
     const antenna = cyl(0.06, 0.06, 3, 0xE8F4EC, 8, 0.4, 0.7); antenna.position.y = 19.5;
     g.add(b, glass, antenna); return g;
@@ -102,7 +102,7 @@ const BUILDINGS = {
     const sign = box(5, 0.8, 0.15, 0x10B981, 0.5);
     sign.material.emissive = new THREE.Color(0x34D399); sign.material.emissiveIntensity = 0.8;
     sign.position.set(0, 2.8, 2.35);
-    const door = box(1.6, 2.2, 0.1, 0x6DE0F0, 0.2, 0.3);
+    const door = box(1.6, 2.2, 0.1, 0x6DB4AC, 0.2, 0.3);
     door.material.transparent = true; door.material.opacity = 0.6; door.position.set(0, 1.1, 2.3);
     g.add(b, sign, door); return g;
   },
@@ -112,8 +112,8 @@ const BUILDINGS = {
 const DECOR = {
   cactus() {
     const g = new THREE.Group();
-    const body = cyl(0.45, 0.55, 2.4, 0x34C47A, 12, 0.95); body.position.y = 1.2;
-    const arm = cyl(0.28, 0.3, 1.1, 0x34C47A, 10, 0.95); arm.position.set(0.55, 1.4, 0); arm.rotation.z = -0.6;
+    const body = cyl(0.45, 0.55, 2.4, 0x9DBA86, 12, 0.95); body.position.y = 1.2;
+    const arm = cyl(0.28, 0.3, 1.1, 0x9DBA86, 10, 0.95); arm.position.set(0.55, 1.4, 0); arm.rotation.z = -0.6;
     g.add(body, arm); return g;
   },
   palm() {
@@ -121,7 +121,7 @@ const DECOR = {
     const trunk = cyl(0.22, 0.35, 4.5, 0xB8875A, 10, 0.95); trunk.position.y = 2.25;
     const crown = new THREE.Group(); crown.position.y = 4.5;
     for (let i = 0; i < 6; i++) {
-      const leaf = box(2.6, 0.08, 0.5, 0x6EE7A8, 0.95);
+      const leaf = box(2.6, 0.08, 0.5, 0xC2D3AB, 0.95);
       leaf.position.set(1.3, 0, 0); leaf.rotation.y = i / 6 * Math.PI * 2;
       const pivot = new THREE.Group(); pivot.rotation.y = i / 6 * Math.PI * 2;
       pivot.add(leaf); crown.add(pivot);
@@ -132,7 +132,7 @@ const DECOR = {
     const g = new THREE.Group();
     const trunk = cyl(0.25, 0.35, 2, 0x9b6b43, 10, 0.95); trunk.position.y = 1;
     for (let i = 0; i < 3; i++) {
-      const c = new THREE.Mesh(new THREE.ConeGeometry(1.6 - i * 0.35, 2, 10), STD(0x34C47A, 0.95));
+      const c = new THREE.Mesh(new THREE.ConeGeometry(1.6 - i * 0.35, 2, 10), STD(0x9DBA86, 0.95));
       c.position.y = 2.2 + i * 1.2; c.castShadow = true; g.add(c);
     }
     g.add(trunk); return g;
@@ -151,7 +151,7 @@ const DECOR = {
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 10),
       new THREE.MeshStandardMaterial({ color: 0xE8F8EE, emissive: 0x6EE7B7, emissiveIntensity: 1.5 }));
     head.position.y = 4.6;
-    const light = new THREE.PointLight(0xA8F0E0, 1.1, 12); light.position.y = 4.6;
+    const light = new THREE.PointLight(0xE6F1ED, 1.1, 12); light.position.y = 4.6;
     g.add(pole, head, light); return g;
   },
   bench() {
@@ -164,8 +164,8 @@ const DECOR = {
   billboard() {
     const g = new THREE.Group();
     const pole = box(0.2, 3, 0.2, 0xB4D0BE, 0.6, 0.4); pole.position.y = 1.5;
-    const panel = box(4, 2, 0.15, 0x3F9E8C, 0.5, 0.2); panel.position.y = 4;
-    const screen = box(3.7, 1.7, 0.06, 0x6DE0F0, 0.3);
+    const panel = box(4, 2, 0.15, 0xAECFC7, 0.5, 0.2); panel.position.y = 4;
+    const screen = box(3.7, 1.7, 0.06, 0x6DB4AC, 0.3);
     screen.material.emissive = new THREE.Color(0x06B6D4); screen.material.emissiveIntensity = 0.9;
     screen.position.set(0, 4, 0.12);
     g.add(pole, panel, screen); return g;
@@ -201,21 +201,21 @@ function roadSegment(len = 20, width = 6) {
 export const BIOMES = {
   desert: {
     label: '沙漠',
-    terrain: { low: 0xFFE0A3, mid: 0xF5C46B, high: 0xD9984F, peak: 0xFFF8E8, sky: 0xFFDCA8, water: 0x5CC8D8, height: 2.6 },
+    terrain: { low: 0xEEDDB8, mid: 0xD6B67E, high: 0xE6D6B4, peak: 0xF6EFDC, sky: 0xEFE6D0, water: 0x8CBDB4, height: 2.6 },
     buildings: [BUILDINGS.adobe, BUILDINGS.minaret, BUILDINGS.derrick],
     decor: [DECOR.cactus, DECOR.palm],
     road: () => roadSegment(24, 7),
   },
   snow: {
     label: '雪地',
-    terrain: { low: 0xE8F6FF, mid: 0xD2EAFF, high: 0xF4FAFF, peak: 0xFFFFFF, sky: 0xBFE8FF, water: 0x6CC8F0, height: 3.4 },
+    terrain: { low: 0xE2EAF0, mid: 0xC8D9E4, high: 0xE8F0F5, peak: 0xFFFFFF, sky: 0xE2EAEF, water: 0x9DBFD0, height: 3.4 },
     buildings: [BUILDINGS.cabin, BUILDINGS.igloo, BUILDINGS.chapel],
     decor: [DECOR.pine, DECOR.snowman],
     road: () => roadSegment(24, 6),
   },
   urban: {
     label: '都市',
-    terrain: { low: 0xAEC9B8, mid: 0xBED8C8, high: 0xD2E6DA, peak: 0xEAF5EE, sky: 0xA7E8F5, water: 0x6CC8F0, height: 1.2 },
+    terrain: { low: 0xCBD8B6, mid: 0xB3C79A, high: 0xD6E1C6, peak: 0xF1EEDD, sky: 0xEBE7D6, water: 0x9DBFD0, height: 1.2 },
     buildings: [BUILDINGS.apartment, BUILDINGS.office, BUILDINGS.store],
     decor: [DECOR.streetlamp, DECOR.bench, DECOR.billboard, DECOR.hydrant],
     road: () => roadSegment(30, 10),

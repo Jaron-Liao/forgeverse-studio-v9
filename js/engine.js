@@ -5,8 +5,9 @@ import { App, setPet, clamp } from './state.js';
 
 export function createEngine(container) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xE6F5EE);
-  scene.fog = new THREE.Fog(0xE6F5EE, 40, 160);
+  // v12：暖纸台面色，和主题的 --bg 同色温，避免整屏薄荷绿
+  scene.background = new THREE.Color(0xEDEBDF);
+  scene.fog = new THREE.Fog(0xE6E1CF, 40, 160);
 
   const camera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 3000);
   camera.position.set(14, 12, 18);
@@ -21,7 +22,7 @@ export function createEngine(container) {
   container.appendChild(renderer.domElement);
 
   // 灯光
-  const hemi = new THREE.HemisphereLight(0xD6F5E8, 0xFFF4DC, 0.65);
+  const hemi = new THREE.HemisphereLight(0xE7F0DE, 0xF6EBD2, 0.65);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff2d6, 2.1);
   sun.position.set(20, 30, 12);
@@ -31,15 +32,15 @@ export function createEngine(container) {
   sun.shadow.camera.left = -50; sun.shadow.camera.right = 50;
   sun.shadow.camera.top = 50; sun.shadow.camera.bottom = -50;
   scene.add(sun);
-  scene.add(new THREE.AmbientLight(0xF0FBF5, 0.5));
+  scene.add(new THREE.AmbientLight(0xF7F5EA, 0.5));
 
   // 网格 + 地面
-  const grid = new THREE.GridHelper(120, 60, 0x7FC9A8, 0xDCEEE4);
+  const grid = new THREE.GridHelper(120, 60, 0x9BAE93, 0xD9D4C2);
   grid.material.transparent = true; grid.material.opacity = 0.5;
   scene.add(grid);
   const ground = new THREE.Mesh(
     new THREE.CircleGeometry(60, 64),
-    new THREE.MeshStandardMaterial({ color: 0xE8F4EC, roughness: 1 })
+    new THREE.MeshStandardMaterial({ color: 0xE7E6D5, roughness: 1 })
   );
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.01;
@@ -75,8 +76,8 @@ export function createEngine(container) {
     sun.position.set(Math.cos(ang) * 40, Math.sin(ang) * 38 + 4, 18);
     const day = clamp(Math.sin(ang) + 0.3, 0, 1);
     sun.intensity = 0.3 + day * 2.2;
-    const top = new THREE.Color().setHSL(0.62, 0.5, 0.05 + day * 0.32);
-    const bot = new THREE.Color().setHSL(0.62, 0.4, 0.02 + day * 0.12);
+    const top = new THREE.Color().setHSL(0.29, 0.16, 0.05 + day * 0.86);
+    const bot = new THREE.Color().setHSL(0.14, 0.22, 0.03 + day * 0.82);
     scene.background.copy(top);
     scene.fog.color.copy(bot);
     hemi.intensity = 0.25 + day * 0.6;

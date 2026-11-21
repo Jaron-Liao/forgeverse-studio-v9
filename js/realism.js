@@ -14,13 +14,14 @@ function skyGradient(t) {
   const ang = t * Math.PI * 2 - Math.PI / 2;
   const sunY = Math.sin(ang);              // -1..1
   const day = clamp(sunY * 1.4 + 0.25, 0, 1);
-  // v10 WorkBuddy 绿：青绿天空，清爽专业，与品牌绿协调
+  // v12 孔雀石 × 黄铜：视口做成「暖纸台面」，物件才是彩色主体。
+  // 原来 hue 0.44/0.47（青绿）会让整个场景糊成一片薄荷绿，与暖纸 UI 割裂。
   const horizon = new THREE.Color().setHSL(
-    sunY < 0.1 ? 0.10 : 0.47,             // 低角度暖橙 / 白天青绿
-    0.52, 0.46 + day * 0.34
+    sunY < 0.1 ? 0.10 : 0.15,             // 低角度暖橙 / 白天暖砂地平线
+    0.22, 0.40 + day * 0.46
   );
   const zenith = new THREE.Color().setHSL(
-    0.44, 0.50, 0.16 + day * 0.36          // 青蓝天顶
+    0.29, 0.16, 0.13 + day * 0.79          // 暖白微绿天顶（贴近 --bg 的色温）
   );
   const sunColor = new THREE.Color().setHSL(
     clamp(0.09 + sunY * 0.04, 0.08, 0.14), 0.65 - day * 0.45, 0.55 + day * 0.35
@@ -40,12 +41,12 @@ export function applyRealisticTime(t) {
   if (eng.hemi) {
     eng.hemi.intensity = 0.45 + g.day * 0.55;              // 亮底抬基础环境光，减少死黑阴影
     eng.hemi.color.copy(g.zenith);
-    eng.hemi.groundColor.set(0xFFF4DC);                     // 浅暖反射，WorkBuddy 清爽感
+    eng.hemi.groundColor.set(0xF6EBD2);                     // 浅暖反射，砂金台面
   }
   // 背景与雾（地平线色）
   if (eng.scene.background?.isColor) eng.scene.background.copy(g.zenith);
-  if (eng.scene.fog) { eng.scene.fog.color.copy(g.horizon); eng.scene.fog.near = 45; eng.scene.fog.far = 190; }
-  eng.renderer.toneMappingExposure = 0.70 + g.day * 0.20;   // v10 WorkBuddy：上限 0.90，清爽不刺眼
+  if (eng.scene.fog) { eng.scene.fog.color.copy(g.horizon); eng.scene.fog.near = 120; eng.scene.fog.far = 400; }
+  eng.renderer.toneMappingExposure = 0.68 + g.day * 0.17;   // 上限 0.90，清爽不刺眼
   return g;
 }
 
