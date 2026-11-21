@@ -204,7 +204,7 @@ const PRO_DECOR = {
     pts.push(pts[0].clone());
     const curve = new THREE.CatmullRomCurve3(pts);
     const geo = new THREE.TubeGeometry(curve, 40, 0.04, 5, false);
-    const line = mesh(geo, mat(0x7FD4F5, 0.2, 0, { emissive: 0x3AC5E8, emissiveIntensity: 1.2 }), false, false);
+    const line = mesh(geo, mat(0x7FD4F5, 0.2, 0, { emissive: 0x06B6D4, emissiveIntensity: 1.2 }), false, false);
     g.add(line); return g;
   },
   // 帐篷营地（沙漠/雪地通用）
@@ -327,27 +327,27 @@ function meadowBush() {
 // ============================================================
 function neonTower() {
   const g = new THREE.Group();
-  const body = mesh(shade(new THREE.BoxGeometry(5, 16, 5, 3, 6, 3), 0x8B6BE8, 0x6A5FE0),
+  const body = mesh(shade(new THREE.BoxGeometry(5, 16, 5, 3, 6, 3), 0x6FD8C8, 0x3F9E8C),
     mat(0xffffff, 0.4, 0.5, { vertexColors: true }));
   body.position.y = 8; g.add(body);
-  const stripColors = [0x6DE0F0, 0xFF8FB1, 0x9B7EDE];
+  const stripColors = [0x06B6D4, 0x6EE7B7, 0x6DE0F0];
   for (let i = 0; i < 6; i++) {
     const strip = mesh(new THREE.BoxGeometry(5.12, 0.18, 0.12),
       mat(stripColors[i % 3], 0.2, 0.1, { emissive: stripColors[i % 3], emissiveIntensity: 1.4 }), false, false);
     strip.position.set(0, 2 + i * 2.4, 2.56); g.add(strip);
   }
   const crown = mesh(new THREE.BoxGeometry(3.4, 0.5, 3.4),
-    mat(0xFF8FB1, 0.2, 0.3, { emissive: 0xFF8FB1, emissiveIntensity: 1.2 }));
+    mat(0x6EE7B7, 0.2, 0.3, { emissive: 0x6EE7B7, emissiveIntensity: 1.2 }));
   crown.position.y = 16.3; g.add(crown);
   return g;
 }
 
 function neonSign() {
   const g = new THREE.Group();
-  const pole = mesh(new THREE.BoxGeometry(0.16, 3, 0.16), mat(0x8B6BE8, 0.5, 0.7));
+  const pole = mesh(new THREE.BoxGeometry(0.16, 3, 0.16), mat(0x4FB8A8, 0.5, 0.7));
   pole.position.y = 1.5; g.add(pole);
   const panel = mesh(new THREE.BoxGeometry(2.4, 1.3, 0.12),
-    mat(0x6A5FE0, 0.3, 0.2, { emissive: 0xC46FD8, emissiveIntensity: 0.9 }));
+    mat(0x3F9E8C, 0.3, 0.2, { emissive: 0x6FD8C8, emissiveIntensity: 0.9 }));
   panel.position.y = 3.4; g.add(panel);
   const glow = mesh(new THREE.BoxGeometry(2.1, 0.16, 0.14),
     mat(0x6DE0F0, 0.2, 0.1, { emissive: 0x6DE0F0, emissiveIntensity: 1.6 }), false, false);
@@ -358,16 +358,16 @@ function neonSign() {
 function holoPillar() {
   const g = new THREE.Group();
   const beam = mesh(new THREE.CylinderGeometry(0.5, 0.5, 5, 16, 1, true),
-    mat(0x6DE0F0, 0.15, 0, { transparent: true, opacity: 0.35, emissive: 0x3AC5E8, emissiveIntensity: 1.1, side: THREE.DoubleSide }), false, false);
+    mat(0x6DE0F0, 0.15, 0, { transparent: true, opacity: 0.35, emissive: 0x06B6D4, emissiveIntensity: 1.1, side: THREE.DoubleSide }), false, false);
   beam.position.y = 2.5; g.add(beam);
-  const base = mesh(new THREE.CylinderGeometry(0.8, 1, 0.4, 16), mat(0x6A5FE0, 0.5, 0.6));
+  const base = mesh(new THREE.CylinderGeometry(0.8, 1, 0.4, 16), mat(0x3F9E8C, 0.5, 0.6));
   base.position.y = 0.2; g.add(base);
   return g;
 }
 
 function neonRoad() {
   const g = new THREE.Group();
-  const road = mesh(new THREE.BoxGeometry(9, 0.12, 28), mat(0x7A6FD8, 0.4, 0.3));
+  const road = mesh(new THREE.BoxGeometry(9, 0.12, 28), mat(0x2A7A6E, 0.4, 0.3));
   road.position.y = 0.06; g.add(road);
   for (const x of [-4.2, 4.2]) {
     const line = mesh(new THREE.BoxGeometry(0.16, 0.03, 28),
@@ -376,7 +376,7 @@ function neonRoad() {
   }
   for (let i = 0; i < 9; i++) {
     const dash = mesh(new THREE.BoxGeometry(0.14, 0.03, 1.5),
-      mat(0xFF8FB1, 0.2, 0.1, { emissive: 0xFF8FB1, emissiveIntensity: 1.2 }), false, false);
+      mat(0x6EE7B7, 0.2, 0.1, { emissive: 0x6EE7B7, emissiveIntensity: 1.2 }), false, false);
     dash.position.set(0, 0.14, -12 + i * 3); g.add(dash);
   }
   return g;
@@ -403,7 +403,7 @@ export function registerProBiomes() {
   // 草原：绿意地形 + 村舍/谷仓 + 林地装饰；公路复用 biomes.js 的 roadSegment。
   registerBiome('grass', {
     label: '草原·绿意村落',
-    terrain: { low: 0x8FD96B, mid: 0x5FC24C, high: 0xA8C98A, peak: 0xFFFFFF, sky: 0x8FD8FF, water: 0x4FB8E8, height: 2.2 },
+    terrain: { low: 0x6EE7A8, mid: 0x34C47A, high: 0x8FD8A8, peak: 0xFFFFFF, sky: 0xA7E8F5, water: 0x38BDF8, height: 2.2 },
     buildings: [meadowCottage, meadowBarn, meadowCottage],
     decor: [meadowTree, meadowBush, () => PRO_DECOR.tent(0x8FD96B), PRO_DECOR.flag],
     road: () => BIOMES.urban.road(),
@@ -411,7 +411,7 @@ export function registerProBiomes() {
   // 赛博：霓虹夜景；复用都市建筑的写字楼/便利店与路灯/广告牌工厂。
   registerBiome('cyber', {
     label: '赛博·霓虹夜城',
-    terrain: { low: 0x6A5FE0, mid: 0x8B6BE8, high: 0xC46FD8, peak: 0xFFB0E0, sky: 0x7A6FD8, water: 0x6DE0F0, height: 1.6 },
+    terrain: { low: 0x3F9E8C, mid: 0x4FB8A8, high: 0x6FD8C8, peak: 0xA8F0E0, sky: 0x2A7A6E, water: 0x6DE0F0, height: 1.6 },
     buildings: [BIOMES.urban.buildings[1], neonTower, BIOMES.urban.buildings[2]],
     decor: [BIOMES.urban.decor[2], neonSign, holoPillar, BIOMES.urban.decor[0]],
     road: () => neonRoad(),

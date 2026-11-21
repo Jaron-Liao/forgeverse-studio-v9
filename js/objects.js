@@ -20,11 +20,11 @@ function ensureColors(mesh) {
 
 const PRIMS = {
   box: () => new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2, 4, 4, 4), mat()),
-  sphere: () => new THREE.Mesh(new THREE.SphereGeometry(1.3, 64, 48), mat(0xFFC85C, 0.35)),
-  capsule: () => new THREE.Mesh(new THREE.CapsuleGeometry(1, 1.6, 16, 40), mat(0x8FE0A0)),
-  cone: () => new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 48), mat(0xFF9E6B)),
-  cylinder: () => new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 2.4, 48), mat(0xB49BF5)),
-  torus: () => new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.45, 32, 80), mat(0xFF9FC4, 0.3, 0.4)),
+  sphere: () => new THREE.Mesh(new THREE.SphereGeometry(1.3, 64, 48), mat(0x34D399, 0.35)),
+  capsule: () => new THREE.Mesh(new THREE.CapsuleGeometry(1, 1.6, 16, 40), mat(0x6EE7B7)),
+  cone: () => new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 48), mat(0xFBBF24)),
+  cylinder: () => new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 2.4, 48), mat(0x7DD3FC)),
+  torus: () => new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.45, 32, 80), mat(0xF9A8D4, 0.3, 0.4)),
 };
 
 // 主题化模型：用基础体拼装
@@ -84,7 +84,7 @@ function buildModel(key) {
     body.position.y = 1.45;
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.68, 40, 32), mat(0xf2c9a0, 0.6));
     head.position.y = 2.95;
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0x9B7EDE, 0.7));
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0x10B981, 0.7));
     hair.position.y = 3.0;
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a2a4a, roughness: 0.2, metalness: 0.1 });
     const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), eyeMat); e1.position.set(-0.24, 2.98, 0.61);

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { App, bus, toast, setPet } from './state.js';
+import { App, bus, toast, setPet, isFocusMode, setFocusMode } from './state.js';
 import { createEngine } from './engine.js';
 import {
   spawnPrimitive, spawnModel, selectObject, selectFromMesh, deleteSelected,
@@ -177,6 +177,7 @@ function boot() {
 
   wireUI();
   wirePanelToggles();       // FV-A1：面板关闭/重开接线（只做显隐，不碰渲染与 bus）
+  wireFocusMode();          // v10：专注模式（一次性跳过所有提示）
   bus.on('objects', () => { renderTree(); updateHUD(); const tc = $('treeCount'); if (tc) tc.textContent = App.objects.length; });
   bus.on('select', () => renderTree());
   window.addEventListener('wb:transform', updateInspector);
@@ -483,6 +484,42 @@ function wireUI() {
     if (App.realism !== false) applyRealisticTime(autoT); else { App.engine.setTimeOfDay(autoT); updateSky(autoT); }
     const ts = $('timeSlider'); if (ts) ts.value = Math.round(autoT * 100);
   });
+}
+
+// ---- v10 专注模式：一次性跳过所有提示 ----
+function wireFocusMode() {
+  const btn = $('v10-focus-toggle');
+  const apply = on => {
+    if (btn) {
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.title = on ? '专注模式已开启 · 提示已静默（F9 恢复）' : '开启专注模式 · 跳过所有提示（F9）';
+      const label = btn.querySelector('.v10-focus-label');
+      if (label) label.textContent = on ? '专注 · 已静默' : '专注模式';
+    }
+    document.body.classList.toggle('v10-focus-on', on);
+    // 开启时清掉现存 toast 与任何引导气泡；关掉自动帮助弹窗
+    if (on) {
+      document.querySelectorAll('#toast .toast-i').forEach(el => el.remove());
+      const hm = $('helpModal'); if (hm) hm.classList.add('hidden');
+    }
+  };
+  if (btn) btn.onclick = () => toggleFocusMode();
+  bus.on('focus:change', e => apply(e.detail?.on));
+  apply(isFocusMode());
+}
+function toggleFocusMode() {
+  const next = !isFocusMode();
+  setFocusMode(next);
+  // toast 在专注模式下静默，用直接 DOM 反馈开关状态（不受 toast 静默影响）
+  const box = document.getElementById('toast');
+  if (box && !next) {
+    const el = document.createElement('div');
+    el.className = 'toast-i';
+    el.textContent = '已退出专注模式，提示恢复';
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 1600);
+  }
 }
 
 // ---- 体素沙盒：模式切换 / 材质 / 物理开关（P0-3/4/5/6）----
@@ -811,6 +848,7 @@ function onKey(e) {
   if (e.key === '[') { e.preventDefault(); togglePanel('left'); return; }
   if (e.key === ']') { e.preventDefault(); togglePanel('right'); return; }
   if (e.key === 'F2') { e.preventDefault(); togglePanel('bottom'); return; }
+  if (e.key === 'F9') { e.preventDefault(); toggleFocusMode(); return; }   // v10 专注模式
   if (e.key === 'w' || e.key === 'W') App.engine.tcontrols.setMode('translate');
   else if (e.key === 'e' || e.key === 'E') App.engine.tcontrols.setMode('rotate');
   else if (e.key === 'r' || e.key === 'R') App.engine.tcontrols.setMode('scale');

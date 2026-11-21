@@ -14,13 +14,13 @@ function skyGradient(t) {
   const ang = t * Math.PI * 2 - Math.PI / 2;
   const sunY = Math.sin(ang);              // -1..1
   const day = clamp(sunY * 1.4 + 0.25, 0, 1);
-  // v9.2 3A Q版：明亮天蓝，非暗紫非写实灰
+  // v10 WorkBuddy 绿：青绿天空，清爽专业，与品牌绿协调
   const horizon = new THREE.Color().setHSL(
-    sunY < 0.1 ? 0.08 : 0.54,             // 低角度暖橙 / 白天亮蓝
-    0.60, 0.42 + day * 0.35               // 提亮，避免灰蒙
+    sunY < 0.1 ? 0.10 : 0.47,             // 低角度暖橙 / 白天青绿
+    0.52, 0.46 + day * 0.34
   );
   const zenith = new THREE.Color().setHSL(
-    0.55, 0.58, 0.18 + day * 0.38          // 亮天蓝、层次清晰
+    0.44, 0.50, 0.16 + day * 0.36          // 青蓝天顶
   );
   const sunColor = new THREE.Color().setHSL(
     clamp(0.09 + sunY * 0.04, 0.08, 0.14), 0.65 - day * 0.45, 0.55 + day * 0.35
@@ -40,12 +40,12 @@ export function applyRealisticTime(t) {
   if (eng.hemi) {
     eng.hemi.intensity = 0.45 + g.day * 0.55;              // 亮底抬基础环境光，减少死黑阴影
     eng.hemi.color.copy(g.zenith);
-    eng.hemi.groundColor.set(0xFFE6C4);                     // 暖反射，Q 版可爱感
+    eng.hemi.groundColor.set(0xFFF4DC);                     // 浅暖反射，WorkBuddy 清爽感
   }
   // 背景与雾（地平线色）
   if (eng.scene.background?.isColor) eng.scene.background.copy(g.zenith);
   if (eng.scene.fog) { eng.scene.fog.color.copy(g.horizon); eng.scene.fog.near = 45; eng.scene.fog.far = 190; }
-  eng.renderer.toneMappingExposure = 0.72 + g.day * 0.20;   // v9.2 亮底：上限 0.92，配合 Q 版明亮色
+  eng.renderer.toneMappingExposure = 0.70 + g.day * 0.20;   // v10 WorkBuddy：上限 0.90，清爽不刺眼
   return g;
 }
 

@@ -22,17 +22,17 @@ export function setupLighting(eng) {
   sun.shadow.radius = 3;
 
   // 3) 半球光：天空冷色 / 地面暖色，提升层次
-  hemi.color.set(0xDCEEFF);      // v9.2 亮天蓝
-  hemi.groundColor.set(0xFFE6C4); // 暖反射，去暗紫
+  hemi.color.set(0xD6F5E8);      // v9.2 亮天蓝
+  hemi.groundColor.set(0xFFF4DC); // 暖反射，去暗紫
   hemi.intensity = 0.9;
 
   // 4) 轮廓补光（冷色，从侧后打亮边缘，LOL 常用手法）
-  const rim = new THREE.DirectionalLight(0xBFE4FF, 0.45);  // v9.2 冷色轮廓光，强度降避免亮底过曝
+  const rim = new THREE.DirectionalLight(0xBFE8F0, 0.42);  // v9.2 冷色轮廓光，强度降避免亮底过曝
   rim.position.set(-18, 14, -16);
   scene.add(rim);
 
   // 5) 暖色补光（模拟环境反射暖调）
-  const fill = new THREE.DirectionalLight(0xFFE0B0, 0.28);  // v9.2 暖补光，轻描即可
+  const fill = new THREE.DirectionalLight(0xFFE8C0, 0.26);  // v9.2 暖补光，轻描即可
   fill.position.set(12, 6, -10);
   scene.add(fill);
 
@@ -45,7 +45,7 @@ export function setupLighting(eng) {
 
   // 7) 全局色调映射
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.95;
+  renderer.toneMappingExposure = 0.90;
 
   toast('电影级光照已启用（环境反射 + 轮廓光）');
 }

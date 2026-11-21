@@ -33,7 +33,19 @@ export const bus = (() => {
 
 export const uid = () => 'o' + Math.random().toString(36).slice(2, 9);
 
+// v10 专注模式：一次性跳过所有提示。状态持久化，toast 全局静默。
+const FOCUS_KEY = 'v10.focus';
+export function isFocusMode() {
+  try { return localStorage.getItem(FOCUS_KEY) === '1'; } catch (_) { return false; }
+}
+export function setFocusMode(on) {
+  try { on ? localStorage.setItem(FOCUS_KEY, '1') : localStorage.removeItem(FOCUS_KEY); } catch (_) {}
+  bus.emit('focus:change', { on: !!on });
+  return !!on;
+}
+
 export function toast(msg, ms = 1800) {
+  if (isFocusMode()) return;              // v10 专注模式：静默所有提示
   const box = document.getElementById('toast');
   if (!box) return;
   const el = document.createElement('div');

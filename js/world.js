@@ -7,10 +7,10 @@ const ray = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
 
 const THEMES = {
-  grass: { low: 0x8FD96B, mid: 0x5FC24C, high: 0xA8C98A, peak: 0xFFFFFF, sky: 0x8FD8FF, water: 0x4FB8E8 },
+  grass: { low: 0x6EE7A8, mid: 0x34C47A, high: 0x8FD8A8, peak: 0xFFFFFF, sky: 0xA7E8F5, water: 0x38BDF8 },
   snow:  { low: 0xE8F6FF, mid: 0xD2EAFF, high: 0xF4FAFF, peak: 0xFFFFFF, sky: 0xBFE8FF, water: 0x6CC8F0 },
   desert:{ low: 0xFFE0A3, mid: 0xF5C46B, high: 0xD9984F, peak: 0xFFF8E8, sky: 0xFFDCA8, water: 0x5CC8D8 },
-  cyber: { low: 0x6A5FE0, mid: 0x8B6BE8, high: 0xC46FD8, peak: 0xFFB0E0, sky: 0x7A6FD8, water: 0x6DE0F0 },
+  cyber: { low: 0x3F9E8C, mid: 0x4FB8A8, high: 0x6FD8C8, peak: 0xA8F0E0, sky: 0x2A7A6E, water: 0x6DE0F0 },
 };
 let theme = THEMES.grass;
 

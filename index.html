@@ -45,6 +45,15 @@
   .v9-vt-mats{flex-wrap:wrap;justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){.v9-mode-btn,.v9-mat-btn{transition:none}}
+/* v10 专注模式按钮（WorkBuddy 绿） */
+.v10-focus-toggle{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--txt);font-size:12px;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.v10-focus-toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round}
+.v10-focus-toggle:hover{background:var(--panel2);color:var(--acc)}
+.v10-focus-toggle:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.v10-focus-toggle.active{background:var(--acc);color:#fff;border-color:var(--acc);box-shadow:0 0 0 3px var(--gold-glow)}
+body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!important}
+@media(max-width:900px){.v10-focus-label{display:none}.v10-focus-toggle{padding:0 9px}}
+@media(prefers-reduced-motion:reduce){.v10-focus-toggle{transition:none}}
 </style>
 <!-- 腾讯云 SDK（CDN，plain HTML 无构建步骤） -->
 <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
@@ -106,6 +115,11 @@
     </div>
 
     <div class="topright">
+      <!-- v10 专注模式：一次性跳过所有提示，快捷键 F9 -->
+      <button id="v10-focus-toggle" class="v10-focus-toggle" type="button" aria-pressed="false" title="开启专注模式 · 跳过所有提示（F9）">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+        <span class="v10-focus-label">专注模式</span>
+      </button>
       <!-- FV-A1：面板显隐唯一重开入口（始终可见；快捷键 [ / ] / F2） -->
       <div class="v9-panel-toggle-wrap">
         <button id="v9-panel-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="v9-panel-menu" title="面板显示（[ 左栏 / ] 右栏 / F2 下栏）">

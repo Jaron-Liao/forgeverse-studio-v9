@@ -5,8 +5,8 @@ import { App, setPet, clamp } from './state.js';
 
 export function createEngine(container) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xE8F4FF);
-  scene.fog = new THREE.Fog(0xE8F4FF, 40, 160);
+  scene.background = new THREE.Color(0xE6F5EE);
+  scene.fog = new THREE.Fog(0xE6F5EE, 40, 160);
 
   const camera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 3000);
   camera.position.set(14, 12, 18);
@@ -21,7 +21,7 @@ export function createEngine(container) {
   container.appendChild(renderer.domElement);
 
   // 灯光
-  const hemi = new THREE.HemisphereLight(0xDCEEFF, 0xFFE6C4, 0.65);
+  const hemi = new THREE.HemisphereLight(0xD6F5E8, 0xFFF4DC, 0.65);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff2d6, 2.1);
   sun.position.set(20, 30, 12);
@@ -31,15 +31,15 @@ export function createEngine(container) {
   sun.shadow.camera.left = -50; sun.shadow.camera.right = 50;
   sun.shadow.camera.top = 50; sun.shadow.camera.bottom = -50;
   scene.add(sun);
-  scene.add(new THREE.AmbientLight(0xFFF0DC, 0.5));
+  scene.add(new THREE.AmbientLight(0xF0FBF5, 0.5));
 
   // 网格 + 地面
-  const grid = new THREE.GridHelper(120, 60, 0xC9A87C, 0xE8DCC8);
+  const grid = new THREE.GridHelper(120, 60, 0x7FC9A8, 0xDCEEE4);
   grid.material.transparent = true; grid.material.opacity = 0.5;
   scene.add(grid);
   const ground = new THREE.Mesh(
     new THREE.CircleGeometry(60, 64),
-    new THREE.MeshStandardMaterial({ color: 0xF0E8D8, roughness: 1 })
+    new THREE.MeshStandardMaterial({ color: 0xE8F4EC, roughness: 1 })
   );
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.01;
