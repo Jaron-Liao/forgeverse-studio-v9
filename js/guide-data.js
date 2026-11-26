@@ -13,7 +13,7 @@ export const CHAPTERS = [
 export const QUESTIONS = [
   /* ===== 第一章 · 认识你（6）===== */
   {
-    id: 'scene', chapter: 'who', type: 'single', required: true,
+    id: 'scene', rec: 'work', chapter: 'who', type: 'single', required: true,
     title: '这块 3D 工作台，主要服务你哪个战场？',
     sub: '选一个最常出现的场景，后面的面板与任务模板都围着它转',
     options: [
@@ -26,7 +26,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'timeband', chapter: 'who', type: 'single',
+    id: 'timeband', when: a => a.scene === 'work' || a.scene === 'study', rec: 'noon', chapter: 'who', type: 'single',
     title: '你一天里最常打开它的是什么时候？',
     sub: '决定默认时段与天空光线的起点',
     options: [
@@ -39,7 +39,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'pain', chapter: 'who', type: 'single',
+    id: 'pain', rec: 'focus', chapter: 'who', type: 'single',
     title: '说实话，现在最头疼的是哪件事？',
     sub: '工作台会针对这个痛点加压或减负',
     options: [
@@ -52,7 +52,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'role', chapter: 'who', type: 'single',
+    id: 'role', rec: 'leader', chapter: 'who', type: 'single',
     title: '你希望造物精灵扮演什么角色？',
     sub: '决定它跟你说话的语气',
     options: [
@@ -65,7 +65,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'device', chapter: 'who', type: 'single',
+    id: 'device', when: a => !!a.scene && a.scene !== 'life', rec: 'laptop', chapter: 'who', type: 'single',
     title: '你的主战场是哪块屏幕？',
     sub: '决定默认画质档位与面板密度',
     options: [
@@ -77,7 +77,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'budget', chapter: 'who', type: 'single',
+    id: 'budget', when: a => a.device === 'big' || a.device === 'multi', rec: '10', chapter: 'who', type: 'single',
     title: '你愿意每天花多少时间维护它？',
     sub: '时间少 → 少提示多自动化；时间多 → 给你更多手动控制',
     options: [
@@ -90,7 +90,7 @@ export const QUESTIONS = [
 
   /* ===== 第二章 · 工作区（6）===== */
   {
-    id: 'core', chapter: 'rooms', type: 'multi', max: 4, required: true,
+    id: 'core', rec: ['assets','inspector','console'], chapter: 'rooms', type: 'multi', max: 4, required: true,
     title: '核心面板：哪几块是必须的？（最多 4 个）',
     sub: '这几块会常驻主界面，其余可以随时用手动「面板」菜单重开',
     options: [
@@ -103,7 +103,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'extra', chapter: 'rooms', type: 'multi', max: 3,
+    id: 'extra', when: a => (a.core || []).includes('console') || a.pain === 'mess', rec: ['stat','idea'], chapter: 'rooms', type: 'multi', max: 3,
     title: '还想要哪些附加能力？（最多 3 个）',
     sub: '排在核心之后，按需开启，不会默认占满屏幕',
     options: [
@@ -116,7 +116,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'statdepth', chapter: 'rooms', type: 'single',
+    id: 'statdepth', when: a => (a.core || []).includes('console'), rec: 'week', chapter: 'rooms', type: 'single',
     title: '性能与进度信息，你想看多深？',
     sub: '越深，HUD 与统计占的地方越多',
     options: [
@@ -128,7 +128,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'remind', chapter: 'rooms', type: 'single',
+    id: 'remind', when: a => a.pain === 'forget' || a.pain === 'delay', rec: 'anim', chapter: 'rooms', type: 'single',
     title: '希望它怎么提醒你？',
     sub: '选一种不让人烦躁的方式',
     options: [
@@ -140,7 +140,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'storage', chapter: 'rooms', type: 'single',
+    id: 'storage', when: a => a.people === 'team' || a.scene === 'team', rec: 'export', chapter: 'rooms', type: 'single',
     title: '作品数据放哪儿？',
     sub: '当前版本默认浏览器本地存档，云同步需要登录',
     options: [
@@ -150,7 +150,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'people', chapter: 'rooms', type: 'single',
+    id: 'people', when: a => a.scene === 'team', rec: 'solo', chapter: 'rooms', type: 'single',
     title: '有别人要用这个世界吗？',
     sub: '决定要不要开启云同步与共享入口',
     options: [
@@ -163,7 +163,7 @@ export const QUESTIONS = [
 
   /* ===== 第三章 · 外观（6）===== */
   {
-    id: 'palette', chapter: 'skin', type: 'single',
+    id: 'palette', rec: 'emerald', chapter: 'skin', type: 'single',
     title: '绿系主色，凭第一感觉挑一个',
     sub: '全部落在 WorkBuddy 绿色家族内，全局变量统一替换',
     options: [
@@ -176,7 +176,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'pet', chapter: 'skin', type: 'single',
+    id: 'pet', rec: 'dragon', chapter: 'skin', type: 'single',
     title: '挑一只陪你在场景里干活的精灵',
     sub: '它会住在右下角，负责卖萌和唠叨',
     options: [
@@ -189,7 +189,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'texture', chapter: 'skin', type: 'single',
+    id: 'texture', when: a => a.palette === 'emerald' || a.palette === 'jade', rec: 'soft', chapter: 'skin', type: 'single',
     title: '整体质感喜欢哪种？',
     sub: '圆角、阴影、边框的风格，可随时换',
     options: [
@@ -201,7 +201,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'light', chapter: 'skin', type: 'single',
+    id: 'light', when: a => !!a.timeband, rec: 'day', chapter: 'skin', type: 'single',
     title: '明暗模式？',
     sub: '也可以让它跟着时间自动变',
     options: [
@@ -212,7 +212,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'motion', chapter: 'skin', type: 'single',
+    id: 'motion', when: a => a.device !== 'phone' && a.device !== 'pad', rec: 'normal', chapter: 'skin', type: 'single',
     title: '动效强度调到几档？',
     sub: '太花会晕，太少会闷；只影响过渡与入场动画',
     options: [
@@ -223,7 +223,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'density', chapter: 'skin', type: 'single',
+    id: 'density', when: a => (a.core || []).length >= 3, rec: 'three', chapter: 'skin', type: 'single',
     title: '一屏想塞多少信息？',
     sub: '信息密度直接影响焦虑程度',
     options: [
@@ -235,7 +235,7 @@ export const QUESTIONS = [
 
   /* ===== 第四章 · 玩法（6）===== */
   {
-    id: 'xp', chapter: 'play', type: 'single',
+    id: 'xp', when: a => a.pain === 'nofb', rec: 'yes', chapter: 'play', type: 'single',
     title: '要不要经验等级系统？',
     sub: '完成任务涨经验，升级有反馈；关掉则隐藏底部经验条',
     options: [
@@ -244,7 +244,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'badge', chapter: 'play', type: 'single',
+    id: 'badge', when: a => a.pain === 'nofb', rec: 'yes', chapter: 'play', type: 'single',
     title: '成就徽章呢？',
     sub: '达成条件解锁一枚，弹出一次提示',
     options: [
@@ -253,7 +253,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'combo', chapter: 'play', type: 'single',
+    id: 'combo', when: a => a.pain === 'nofb' && a.xp === 'yes', rec: 'no', chapter: 'play', type: 'single',
     title: '连续打卡连击（streak）？',
     sub: '断了会归零，压力与动力并存',
     options: [
@@ -262,7 +262,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'reward', chapter: 'play', type: 'multi', max: 3,
+    id: 'reward', when: a => a.pain === 'nofb' && a.xp === 'yes', rec: ['coin'], chapter: 'play', type: 'multi', max: 3,
     title: '奖励形式想要哪些？（最多 3 个）',
     sub: '干完活给点什么',
     options: [
@@ -274,7 +274,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'punish', chapter: 'play', type: 'single',
+    id: 'punish', when: a => a.pain === 'nofb' && a.combo === 'yes', rec: 'soft', chapter: 'play', type: 'single',
     title: '要不要惩罚机制？',
     sub: '有人需要被 push，有人会被 push 垮',
     options: [
@@ -285,7 +285,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'surprise', chapter: 'play', type: 'multi', max: 3,
+    id: 'surprise', when: a => a.pain === 'nofb' && a.badge === 'yes', rec: ['quote'], chapter: 'play', type: 'multi', max: 3,
     title: '来点随机惊喜吗？（最多 3 个）',
     sub: '让每次打开有点新鲜感',
     options: [
@@ -298,7 +298,7 @@ export const QUESTIONS = [
 
   /* ===== 第五章 · 调参（6）===== */
   {
-    id: 'hero', chapter: 'tune', type: 'single',
+    id: 'hero', rec: 'tasks', chapter: 'tune', type: 'single',
     title: '打开主界面，第一眼最想看到什么？',
     sub: '这是整块工作区的 C 位',
     options: [
@@ -311,7 +311,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'taskview', chapter: 'tune', type: 'single',
+    id: 'taskview', when: a => a.pain === 'forget' || a.pain === 'delay', rec: 'list', chapter: 'tune', type: 'single',
     title: '任务的默认视图？',
     sub: '随时可以切换，这里只定默认',
     options: [
@@ -322,7 +322,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'priority', chapter: 'tune', type: 'single',
+    id: 'priority', when: a => a.pain === 'mess', rec: 'hl', chapter: 'tune', type: 'single',
     title: '任务优先级怎么分？',
     sub: '越简单越容易坚持',
     options: [
@@ -333,7 +333,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'pomolen', chapter: 'tune', type: 'single',
+    id: 'pomolen', when: a => a.pain === 'delay' || a.pain === 'focus', rec: '25_5', chapter: 'tune', type: 'single',
     title: '专注计时一轮多久？',
     sub: '选一个你坐得住的长度',
     options: [
@@ -344,7 +344,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'biome', chapter: 'tune', type: 'single',
+    id: 'biome', when: a => !!a.scene && a.scene !== 'life', rec: 'grass', chapter: 'tune', type: 'single',
     title: '起手想在哪个生态里造物？',
     sub: '新建世界时的默认生态，随时可换',
     options: [
@@ -355,7 +355,7 @@ export const QUESTIONS = [
     ]
   },
   {
-    id: 'name', chapter: 'tune', type: 'text', required: true,
+    id: 'name', rec: '我的造物世界', chapter: 'tune', type: 'text', required: true,
     title: '最后一步：给这块工作区起个名字',
     sub: '会作为新世界的默认名，随时可以改',
     placeholder: '比如：小怪兽作战室 / 今天也要赢 / 我的第二大脑',

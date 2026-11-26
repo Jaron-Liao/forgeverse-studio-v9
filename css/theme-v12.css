@@ -578,3 +578,122 @@ body[data-fv-theme="night"] .gv-shell::before{background:linear-gradient(180deg,
 .info-col{min-width:118px}
 .info-col h4{white-space:nowrap;color:var(--teal);letter-spacing:.8px}
 .info-col:first-child{flex:1.35 1 auto}
+
+/* ============================================================
+   v11 交互式路径问答：批量提问 / 推荐标记 / 审核确认
+   视觉走 Edge AI 助手风格：白卡、大圆角、柔阴影、强层级、少装饰
+   ============================================================ */
+
+/* 开场：只留一句说明 + 两个动作 */
+.gv-intro{max-width:560px}
+.gv-intro .gv-intro-p{max-width:480px;margin:0 auto 18px;line-height:1.8}
+.gv-intro-meta{display:flex;justify-content:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.gv-intro-meta span{
+  font-size:11px;color:var(--sub);padding:5px 12px;border-radius:20px;
+  background:var(--surface-2);border:1px solid var(--line)}
+.gv-intro-actions{margin-bottom:0}
+
+/* 推荐标记：紧贴选项标题，不抢主文字 */
+.gv-rec{
+  font-style:normal;font-size:10px;font-weight:700;line-height:1;
+  color:var(--acc);background:var(--acc-soft);
+  border:1px solid rgba(11,107,75,.22);
+  padding:2px 7px;border-radius:20px;margin-left:8px;vertical-align:2px;
+  letter-spacing:0;
+}
+.gv-opt:has(.gv-rec){border-color:rgba(11,107,75,.30)}
+.gv-opt.on:has(.gv-rec){border-color:var(--acc)}
+
+/* 一次两题：单列网格，卡片等宽 */
+.gv-body--wizard{
+  grid-template-columns:1fr;place-items:start stretch;
+  overflow:auto;padding:24px 28px 18px;align-content:start;
+}
+.gv-qgroup{width:100%;max-width:860px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gv-qcard{
+  background:var(--surface,#fff);border:1px solid var(--line);
+  border-radius:16px;padding:20px 20px 18px;
+  box-shadow:0 4px 20px rgba(24,42,30,.05);
+  display:flex;flex-direction:column;min-height:0;
+}
+.gv-qtop{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.gv-qtag{font-size:10px;font-weight:700;color:var(--teal);
+  background:var(--teal-soft);border-radius:20px;padding:3px 10px;letter-spacing:.5px}
+.gv-qrec{font-size:10px;color:var(--sub);margin-left:auto}
+.gv-qcard .gv-q{font-size:16px;line-height:1.5;margin:0 0 14px;color:var(--txt);font-weight:700}
+.gv-qcard .gv-field{flex:1}
+.gv-qcard .gv-opts{display:flex;flex-direction:column;gap:7px}
+.gv-qcard .gv-opt{padding:9px 12px;border-radius:10px;min-height:0}
+.gv-qcard .gv-opt-txt b{font-size:12.5px}
+.gv-qcard .gv-emo{filter:grayscale(1) opacity(.55);font-size:14px}
+.gv-qcard .gv-opt.on .gv-emo{filter:grayscale(.4) opacity(.8)}
+/* 两题并排时选项最多 6 个，压掉副标题后仍在一屏内 */
+.gv-qcard .gv-opt-txt small{display:none}
+.gv-qcard .gv-text{width:100%;height:38px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--line);background:var(--surface);color:var(--txt);font-size:13px}
+.gv-foot .gv-btn--text{background:none;border:1px solid transparent;color:var(--sub);box-shadow:none}
+.gv-foot .gv-btn--text:hover{color:var(--acc);background:var(--acc-soft);border-color:transparent}
+
+/* 审核 / 确认页 */
+.gv-body--review{grid-template-columns:1fr;place-items:start stretch;overflow:auto;
+  padding:22px 28px 20px;align-content:start}
+.gv-review{width:100%;max-width:860px;margin:0 auto}
+.gv-rv-head h2{margin:0 0 5px;font-size:21px;color:var(--txt);letter-spacing:.3px}
+.gv-rv-head p{margin:0 0 16px;font-size:12px;color:var(--sub);line-height:1.7}
+
+.gv-route{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:14px}
+.gv-route-step{
+  background:linear-gradient(180deg,#FFFFFF,#FBF9F3);
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px;
+  box-shadow:0 3px 12px rgba(24,42,30,.045);
+}
+.gv-route-step i{font-style:normal;font:700 11px var(--mono);color:var(--brass);display:block;margin-bottom:7px}
+.gv-route-step b{display:block;font-size:12.5px;color:var(--txt);margin-bottom:3px}
+.gv-route-step span{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+
+.gv-advice{position:relative;border:1px solid var(--teal-line);border-left:3px solid var(--acc);
+  border-radius:12px;background:linear-gradient(100deg,var(--teal-soft),rgba(255,255,255,.5));
+  padding:12px 16px;margin-bottom:16px}
+.gv-advice-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--acc);
+  background:var(--acc-soft);border-radius:20px;padding:2px 9px;margin-bottom:5px}
+.gv-advice p{margin:0;font-size:12px;line-height:1.75;color:var(--txt)}
+
+.gv-name-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.gv-name-row label{font-size:12px;color:var(--sub);flex:0 0 auto}
+.gv-name-row .gv-text{flex:1;height:36px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--line);background:var(--surface);color:var(--txt);font-size:13px}
+.gv-name-row .gv-text:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+
+.gv-review .gv-set-list{max-height:230px;overflow:auto;padding-right:4px}
+.gv-review .gv-set-group{margin-bottom:10px}
+.gv-review .gv-set-row{grid-template-columns:minmax(120px,1fr) minmax(150px,1.3fr) auto;
+  padding:5px 8px;border-radius:7px}
+.gv-review .gv-set-row:hover{background:var(--surface-2)}
+.gv-review .gv-set-k{font-size:11px;color:var(--sub)}
+.gv-review .gv-set-v{font-size:11.5px;color:var(--txt)}
+.gv-skipped{margin:10px 0 0;font-size:10.5px;color:var(--sub);opacity:.8}
+.gv-rv-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.gv-rv-actions .gv-btn--lg{padding:10px 22px}
+
+body[data-fv-theme="night"] .gv-qcard,
+body[data-fv-theme="night"] .gv-route-step{
+  background:linear-gradient(180deg,var(--surface),var(--surface-2));
+}
+body[data-fv-theme="night"] .gv-advice{
+  background:linear-gradient(100deg,rgba(78,156,145,.14),rgba(16,36,28,.3));
+}
+#fv-guide[data-light="night"] .gv-route-step{background:linear-gradient(180deg,var(--gv-s1),var(--gv-s2))}
+
+@media(max-width:1000px){
+  .gv-qgroup{grid-template-columns:1fr;max-width:520px}
+  .gv-route{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gv-review .gv-set-row{grid-template-columns:1fr auto}
+  .gv-review .gv-set-v{grid-column:1/-1;grid-row:2}
+}
+
+/* 弹窗统一三行：头 / 可滚动主体 / 固定底栏（审核页按钮不再被裁切） */
+.gv-shell{grid-template-rows:auto minmax(0,1fr) auto}
+.gv-body{min-height:0}
+.gv-foot--review{justify-content:flex-start}
+.gv-foot--review .gv-btn--primary{margin-right:4px}

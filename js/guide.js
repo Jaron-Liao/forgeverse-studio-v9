@@ -1,7 +1,8 @@
-/* 创作向导引擎（v10 融合）
-   - 30 问分步引导 + 每步可跳过 + 一键「跳过全部」（保留已答，其余落安全默认）
-   - localStorage 持久化，设置入口可随时补填
-   - 只做增量：不重建 DOM、不改既有 ID，样式全部走 CSS 变量与新增类名
+/* 创作向导引擎 v11 — 交互式路径问答
+   - 每次只问 2 题；题目带 when 条件，答完动态裁剪后续路径
+   - 选项标「（推荐）」；结束进入审核页，可逐项修改
+   - 保留 v10 的 localStorage schema 与全部对外 API
+   - 只做增量：不重建既有 DOM、不改旧 ID
 */
 import { App, toast } from './state.js';
 import {
@@ -13,16 +14,18 @@ import {
 const KEY = 'fv.guide.v1';
 const ROOT_ID = 'fv-guide';
 const NOTE_ID = 'fv-guide-note';
+const BATCH = 2;                    // 每次只问两题
+const NAME_ID = 'name';             // 名字放到审核页填，不占问答轮次
 
 let S = { answers: {}, skippedIds: [], done: false, skippedAll: false, hinted: false, introSeen: false, updatedAt: 0 };
-let idx = 0;
-let view = 'intro';         // intro | wizard | result | settings
+let cursor = 0;                     // 当前组在 flow 中的起始下标
+let view = 'intro';                 // intro | wizard | review | settings
 let open = false;
 let locked = false;
 let lastFocus = null;
 let bound = false;
 let autoTimer = null;
-let perf = { lastSkipMs: 0 };
+let perf = { lastSkipMs: 0, lastFlowLen: 0 };
 
 /* ---------------- 存储 ---------------- */
 function load() {
@@ -38,7 +41,7 @@ function load() {
     S.hinted = !!p.hinted;
     S.introSeen = !!p.introSeen;
     S.updatedAt = p.updatedAt || 0;
-  } catch (_) { /* 隐私模式 / 存储不可用 → 用内存态 */ }
+  } catch (_) { /* 隐私模式：用内存态 */ }
 }
 function save() {
   S.updatedAt = Date.now();
@@ -56,11 +59,18 @@ function hexA(hex, a) {
 }
 function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function byId(id) { return document.getElementById(id); }
-
-function countAnswered() {
-  return QUESTIONS.filter(q => !isEmpty(S.answers[q.id])).length;
-}
 function answeredOf(q) { return !isEmpty(S.answers[q.id]); }
+
+/* 关键：条件判断只看「用户真正答过的值」，不吞默认值，
+   否则 DEFAULTS.scene='all' 会让所有依赖场景的题都被判为需要问。 */
+function activeFlow() {
+  return QUESTIONS.filter(q =>
+    q.id !== NAME_ID && (!q.when || q.when(S.answers) || answeredOf(q)));
+}
+function flowIndex(id) { return activeFlow().findIndex(q => q.id === id); }
+function batchOf() { return activeFlow().slice(cursor, cursor + BATCH); }
+function batchDone(list) { return list.every(q => answeredOf(q) || S.skippedIds.indexOf(q.id) > -1); }
+function pendingCount() { return activeFlow().filter(q => !answeredOf(q) && S.skippedIds.indexOf(q.id) < 0).length; }
 
 /* 作答 + 安全默认 = 最终配置；永不出现空值 */
 function resolve() {
@@ -83,7 +93,7 @@ function resolveLight(light) {
   return (h >= 7 && h < 18) ? 'day' : (h < 21 ? 'dusk' : 'night');
 }
 
-/* ---------------- 应用配置到工作区 ---------------- */
+/* ---------------- 应用配置到工作区（沿用 v10） ---------------- */
 const THEME_TOKENS = {
   day: null,
   dusk: {
@@ -102,7 +112,6 @@ function applyConfig(cfg, opts) {
   const light = resolveLight(cfg.light);
   const root = document.documentElement;
 
-  // 绿色家族：只覆盖强调色变量，变量名与 3d.css 完全一致
   root.style.setProperty('--acc', pal.accent);
   root.style.setProperty('--gold', pal.accent);
   root.style.setProperty('--gold2', pal.accent2);
@@ -112,7 +121,6 @@ function applyConfig(cfg, opts) {
   root.style.setProperty('--ok', pal.accent);
   root.style.setProperty('--accent-ink', pal.a11y);
 
-  // 深浅模式：day 还原 3d.css 原生值，dusk/night 覆写底层面板变量
   const tokens = THEME_TOKENS[light];
   Object.keys(THEME_TOKENS.dusk).forEach(k => { if (!tokens || !(k in tokens)) root.style.removeProperty(k); });
   if (tokens) Object.keys(tokens).forEach(k => root.style.setProperty(k, tokens[k]));
@@ -129,7 +137,6 @@ function applyConfig(cfg, opts) {
   document.body.classList.toggle('fv-task-board', cfg.taskview === 'board');
   document.body.classList.toggle('fv-quiet', cfg.remind === 'none' || cfg.punish === 'none');
 
-  // 造物精灵：只替换文本与光晕，不改节点结构
   const pet = PETS[cfg.pet] || PETS.dragon;
   const petEl = byId('pet');
   if (petEl) {
@@ -140,7 +147,6 @@ function applyConfig(cfg, opts) {
   const petName = document.querySelector('.pet-name');
   if (petName) petName.innerHTML = `${esc(pet.name)} · <span id="petMood">待命</span>`;
 
-  // 世界名：只写默认值，不覆盖用户已改过的输入
   if (cfg.name) {
     App.worldName = cfg.name;
     const wc = byId('wcName');
@@ -149,7 +155,6 @@ function applyConfig(cfg, opts) {
     if (wn && (!wn.dataset.touched || wn.value === '' || wn.value === '未命名世界')) wn.value = cfg.name;
   }
 
-  // 轻量部分立即生效；重量级（后处理管线 / 面板 / 灯光）交给主模块异步执行
   const detail = {
     cfg,
     panels: panelPlan(cfg),
@@ -160,50 +165,44 @@ function applyConfig(cfg, opts) {
   if (options.defer) {
     if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => emitApply(detail));
     else setTimeout(() => emitApply(detail), 0);
-  } else {
-    emitApply(detail);
-  }
+  } else emitApply(detail);
   return cfg;
 }
 
 function emitApply(detail) {
-  try { window.dispatchEvent(new CustomEvent('fv:guide-apply', { detail })); } catch (_) { /* 老旧浏览器 */ }
+  try { window.dispatchEvent(new CustomEvent('fv:guide-apply', { detail })); } catch (_) { /* 旧浏览器 */ }
 }
 
-/* 面板计划：核心面板决定三栏，视野/性能类决定附加块 */
 function panelPlan(cfg) {
   const core = cfg.core || [];
   const show = { left: false, right: false, bottom: false };
   core.forEach(k => { const p = PANEL_BY_CORE[k]; if (p) show[p] = true; });
-  if (!show.left && !show.right && !show.bottom) show.bottom = true; // 安全默认：至少留一块
+  if (!show.left && !show.right && !show.bottom) show.bottom = true;
   if (cfg.hero === 'tasks' || cfg.hero === 'stat') show.bottom = true;
   return Object.assign({}, show, {
-    minimap: core.indexOf('minimap') > -1 || (cfg.statdepth === 'week' || cfg.statdepth === 'heat' || cfg.statdepth === 'trend' || cfg.statdepth === 'full'),
+    minimap: core.indexOf('minimap') > -1 || ['week', 'heat', 'trend', 'full'].indexOf(cfg.statdepth) > -1,
     hud: core.indexOf('hud') > -1 || cfg.statdepth !== 'lite',
     search: core.indexOf('search') > -1
   });
 }
 
-/* ---------------- 跳过全部（同步、可测速） ---------------- */
+/* ---------------- 跳过全部 ---------------- */
 function skipAll(reason) {
   const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-  const missing = QUESTIONS.filter(q => !answeredOf(q)).length;
+  const missing = activeFlow().filter(q => !answeredOf(q)).length;
   const cfg = resolve();
-  S.done = true;
-  S.skippedAll = true;
+  S.done = true; S.skippedAll = true;
   save();
-  applyConfig(cfg, { defer: true });   // 重的部分放下一帧，保证点击即返回
+  applyConfig(cfg, { defer: true });
   closeGuide({ silent: true });
-  if (reason !== 'boot') {
-    toast(`已按默认设定跳过 ${missing} 个问题 · 随时可在「向导」补填`);
-  }
+  if (reason !== 'boot') toast(`已用推荐配置进入 · ${missing} 项未答 · 随时可补填`);
   showHint(missing);
   const t1 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   perf.lastSkipMs = Math.round((t1 - t0) * 100) / 100;
   return cfg;
 }
 
-/* ---------------- 可关闭的轻提示 ---------------- */
+/* ---------------- 轻提示 ---------------- */
 function showHint(missing) {
   if (S.hinted) return;
   const host = byId('app');
@@ -218,16 +217,15 @@ function showHint(missing) {
   }
   bar.innerHTML = `
     <span class="gv-note-ico" aria-hidden="true">⏭</span>
-    <span class="gv-note-txt">已用默认设定进入工作区${missing > 0 ? `（${missing} 项未填）` : ''}，可随时补填。</span>
-    <button type="button" class="gv-note-act" data-act="fill">去补填</button>
+    <span class="gv-note-txt">已用推荐配置进入${missing > 0 ? `（${missing} 项未答）` : ''}，可随时修改。</span>
+    <button type="button" class="gv-note-act" data-act="fill">去查看</button>
     <button type="button" class="gv-note-x" data-act="dismiss" aria-label="关闭提示">✕</button>`;
   bar.hidden = false;
   bar.onclick = e => {
     const act = e.target.closest('[data-act]')?.dataset.act;
-    if (act === 'fill') { bar.hidden = true; S.hinted = true; save(); openGuide('settings'); }
+    if (act === 'fill') { bar.hidden = true; S.hinted = true; save(); openGuide('review'); }
     if (act === 'dismiss') { bar.hidden = true; S.hinted = true; save(); }
   };
-  // 8 秒后自动淡出，但不写入「已读」，下次仍可提示
   setTimeout(() => { if (bar && !bar.hidden) bar.classList.add('gv-note--fade'); }, 8000);
 }
 
@@ -244,15 +242,18 @@ function ensureRoot() {
   if (!bound) {
     root.addEventListener('click', onClick);
     root.addEventListener('input', onInput);
-    root.addEventListener('change', onChange);
     bound = true;
   }
   return root;
 }
 
-function frame(bodyHTML, showProgress) {
-  const answered = countAnswered();
-  const pct = Math.round(answered / TOTAL * 100);
+function frame(bodyHTML, progress, footerHTML) {
+  const flowLen = activeFlow().length;
+  const ans = activeFlow().filter(answeredOf).length;
+  const pct = flowLen ? Math.round(ans / flowLen * 100) : 0;
+  const label = view === 'wizard'
+    ? `第 ${Math.floor(cursor / BATCH) + 1} / ${Math.ceil(flowLen / BATCH)} 组`
+    : `${ans} / ${flowLen} 项`;
   return `
     <div class="gv-shell" role="dialog" aria-modal="true" aria-labelledby="gv-title">
       <header class="gv-head">
@@ -260,55 +261,36 @@ function frame(bodyHTML, showProgress) {
           <span class="gv-mark" aria-hidden="true">◆</span>
           <div class="gv-brand-txt">
             <b id="gv-title">创作向导</b>
-            <small>30 问 · 拼出你的 3D 工作区</small>
+            <small>按需提问 · 自动跳过无关项</small>
           </div>
         </div>
-        ${showProgress ? `
+        ${progress ? `
         <div class="gv-progress">
           <div class="gv-bar"><i style="width:${pct}%"></i></div>
-          <span class="gv-count">已答 <b>${answered}</b>/${TOTAL}</span>
+          <span class="gv-count">${label}</span>
         </div>` : '<div class="gv-progress"></div>'}
         <div class="gv-head-actions">
-          <button type="button" class="gv-btn gv-btn--skip" data-act="skip-all">
-            <span aria-hidden="true">⏭</span> 跳过全部
-          </button>
-          <button type="button" class="gv-icon" data-act="close" aria-label="关闭向导" title="关闭（Esc）">✕</button>
+          <button type="button" class="gv-btn gv-btn--skip" data-act="skip-all">跳过全部</button>
+          <button type="button" class="gv-icon" data-act="close" aria-label="关闭" title="关闭（Esc）">✕</button>
         </div>
       </header>
       ${bodyHTML}
+      ${footerHTML ? `<footer class="gv-foot gv-foot--review">${footerHTML}</footer>` : ''}
     </div>`;
 }
 
 function introHTML() {
-  const cfg = resolve();
-  const pet = PETS[cfg.pet] || PETS.dragon;
+  const flowLen = activeFlow().length;
   return frame(`
     <div class="gv-body gv-body--intro">
       <div class="gv-intro">
-        <div class="gv-intro-pet" aria-hidden="true">${pet.emoji}</div>
-        <h2 class="gv-intro-h">先花 <em>30 秒</em>，让工作区长成你的样子</h2>
-        <p class="gv-intro-p">场景、面板、绿系皮肤、玩法开关。全答完会生成一套配置；
-          不想答也没关系——点「跳过全部」立刻用一套安全默认值进入，之后在任何时候补填。</p>
-        <div class="gv-chips">
-          <span class="gv-chip">30 道问答题</span>
-          <span class="gv-chip">6 类面板</span>
-          <span class="gv-chip">6 套绿系皮肤</span>
-          <span class="gv-chip">6 只造物精灵</span>
-        </div>
-        <div class="gv-steps">
-          <div class="gv-step"><i>1</i><div><b>认识你</b><span>场景、痛点、设备、投入时间</span></div></div>
-          <div class="gv-step"><i>2</i><div><b>工作区</b><span>选面板、定统计深度</span></div></div>
-          <div class="gv-step"><i>3</i><div><b>外观</b><span>绿系配色、精灵、质感、明暗</span></div></div>
-          <div class="gv-step"><i>4</i><div><b>玩法</b><span>等级、徽章、连击、奖励</span></div></div>
-        </div>
+        <h2 class="gv-intro-h">几步配置你的工作区</h2>
+        <p class="gv-intro-p">只问与你有关系的问题。每次 2 题，答完自动跳过无关项，最后可以逐项检查。</p>
+        <div class="gv-intro-meta"><span>${flowLen} 个必要问题</span><span>约 30 秒</span><span>可随时修改</span></div>
         <div class="gv-intro-actions">
-          <button type="button" class="gv-btn gv-btn--primary gv-btn--lg" data-act="start">
-            <span aria-hidden="true">▶</span> 开始第 1 问
-          </button>
-          <button type="button" class="gv-btn gv-btn--ghost gv-btn--lg" data-act="skip-all">⏭ 跳过全部问题</button>
-          ${S.done ? '<button type="button" class="gv-btn gv-btn--ghost gv-btn--lg" data-act="settings">⚙ 查看 / 补填</button>' : ''}
+          <button type="button" class="gv-btn gv-btn--primary gv-btn--lg" data-act="start">开始</button>
+          <button type="button" class="gv-btn gv-btn--ghost gv-btn--lg" data-act="skip-all">用推荐配置进入</button>
         </div>
-        <p class="gv-note-line">跳过不会丢数据：已答的保留，未答的用安全默认值兜底。</p>
       </div>
     </div>`, false);
 }
@@ -325,61 +307,16 @@ function miniLayout(cfg) {
   </div>`;
 }
 
-function wizardHTML() {
-  const q = QUESTIONS[idx];
-  if (!q) return resultHTML();
-  const cfg = resolve();
-  const pet = PETS[cfg.pet] || PETS.dragon;
-  const pal = PALETTES[cfg.palette] || PALETTES.emerald;
-  const chapter = CHAPTERS.find(c => c.id === q.chapter) || CHAPTERS[0];
-
-  // 章节序号用汉字数字：比 emoji 更贴「纸面 / 出版」的调性，也不会往绿系里塞红橙蓝
-  const CN_NUM = ['壹', '贰', '叁', '肆', '伍'];
-  const chapters = CHAPTERS.map((c, ci) => {
-    const qs = QUESTIONS.filter(x => x.chapter === c.id);
-    const ok = qs.every(x => answeredOf(x));
-    const skipped = qs.some(x => S.skippedIds.indexOf(x.id) > -1) && !ok;
-    return `<button type="button" class="gv-ch ${c.id === q.chapter ? 'on' : ''} ${ok ? 'done' : ''} ${skipped ? 'skip' : ''}"
-      data-ch="${c.id}" aria-pressed="${c.id === q.chapter}">
-      <span class="gv-ch-n" aria-hidden="true">${CN_NUM[ci] || ci + 1}</span> ${c.name}${ok ? '<em aria-label="已完成">✓</em>' : skipped ? '<em class="q" aria-label="有跳过">·</em>' : ''}
-    </button>`;
-  }).join('');
-
-  return frame(`
-    <nav class="gv-chapters" aria-label="章节">${chapters}</nav>
-    <div class="gv-body">
-      <aside class="gv-side">
-        <div class="gv-pet" aria-hidden="true">${pet.emoji}</div>
-        <div class="gv-bubble">${esc(TONES[cfg.role] ? rnd(TONES[cfg.role]) : chapter.hint)}</div>
-        ${miniLayout(cfg)}
-        <div class="gv-side-meta">
-          <span>${pal.name}</span><span>${esc(labelOf('light', cfg.light))}</span><span>${esc(labelOf('density', cfg.density))}</span>
-        </div>
-      </aside>
-      <section class="gv-card" aria-live="polite">
-        <div class="gv-qno">Q${idx + 1} / ${TOTAL}${q.type === 'multi' ? ' · 可多选' : ''}${q.max ? `（最多 ${q.max}）` : ''}</div>
-        <h2 class="gv-q">${esc(q.title)}</h2>
-        <p class="gv-sub">${esc(q.sub)}</p>
-        <div class="gv-field">${fieldHTML(q)}</div>
-        <p class="gv-req">${q.required ? '必填项 · 可跳过，未作答时自动取安全默认值' : '可跳过 · 未作答时自动取安全默认值'}</p>
-      </section>
-    </div>
-    <footer class="gv-foot">
-      <button type="button" class="gv-btn gv-btn--ghost" data-act="prev" ${idx === 0 ? 'disabled' : ''}>← 上一问</button>
-      <div class="gv-kbd-hint"><kbd>1</kbd>-<kbd>9</kbd> 选择 · <kbd>Enter</kbd> 下一步 · <kbd>←</kbd> 返回</div>
-      <button type="button" class="gv-btn gv-btn--ghost" data-act="skip-one">跳过这题</button>
-      <button type="button" class="gv-btn gv-btn--primary" data-act="next">
-        ${idx === TOTAL - 1 ? '完成 ✓' : '下一步 →'}
-      </button>
-    </footer>`, true);
+function isRecommended(q, v) {
+  if (!q.rec) return false;
+  return Array.isArray(q.rec) ? q.rec.indexOf(v) > -1 : q.rec === v;
 }
 
 function fieldHTML(q) {
   if (q.type === 'text') {
     const val = S.answers[q.id] || '';
     return `<input id="gv-text" class="gv-text" type="text" maxlength="24"
-      placeholder="${esc(q.placeholder || '')}" value="${esc(val)}" autocomplete="off" />
-      <div class="gv-hint">留白就用默认名：<b>${esc(q.fallback || DEFAULTS.name)}</b></div>`;
+      placeholder="${esc(q.placeholder || DEFAULTS[q.id])}" value="${esc(val)}" autocomplete="off" />`;
   }
   const cur = S.answers[q.id];
   const sel = q.type === 'multi' ? (Array.isArray(cur) ? cur : []) : [cur];
@@ -387,103 +324,109 @@ function fieldHTML(q) {
     <button type="button" class="gv-opt ${sel.indexOf(o.v) > -1 ? 'on' : ''}"
       data-v="${esc(o.v)}" data-i="${i}" aria-pressed="${sel.indexOf(o.v) > -1}">
       <span class="gv-emo" aria-hidden="true">${o.e}</span>
-      <span class="gv-opt-txt"><b>${esc(o.l)}</b><small>${esc(o.d)}</small></span>
+      <span class="gv-opt-txt"><b>${esc(o.l)}${isRecommended(q, o.v) ? '<em class="gv-rec">（推荐）</em>' : ''}</b></span>
       <span class="gv-tick" aria-hidden="true">${q.type === 'multi' ? '✓' : '●'}</span>
     </button>`).join('')}</div>`;
 }
 
-function resultHTML() {
-  const cfg = resolve();
+function wizardHTML() {
+  const list = batchOf();
+  if (!list.length) return reviewHTML();
+
+  const cards = list.map(q => `
+    <section class="gv-qcard" data-id="${q.id}">
+      <div class="gv-qtop"><span class="gv-qtag">${esc((CHAPTERS.find(c => c.id === q.chapter) || {}).name || '配置')}</span>
+        ${q.rec ? '<span class="gv-qrec">有推荐值</span>' : ''}</div>
+      <h3 class="gv-q">${esc(q.title)}</h3>
+      <div class="gv-field">${fieldHTML(q)}</div>
+    </section>`).join('');
+
+  return frame(`
+    <div class="gv-body gv-body--wizard">
+      <div class="gv-qgroup">${cards}</div>
+    </div>`, true, `
+      <button type="button" class="gv-btn gv-btn--ghost" data-act="prev" ${cursor === 0 ? 'disabled' : ''}>上一组</button>
+      <button type="button" class="gv-btn gv-btn--text" data-act="review">跳到审核</button>
+      <button type="button" class="gv-btn gv-btn--ghost" data-act="skip-group">跳过这组</button>
+      <button type="button" class="gv-btn gv-btn--primary" data-act="next">下一组 →</button>`);
+}
+
+/* ---------- 个性化路线 + 推荐回答 ---------- */
+function buildRoute(cfg) {
+  const scenes = { work: '工作项目', study: '学习创作', life: '生活整理', indie: '独立游戏', team: '团队协作', all: '综合全能' };
+  const pains = { delay: '拖延启动', forget: '总是忘事', focus: '容易分心', nofb: '缺少反馈', mess: '场景太杂', noreview: '缺少复盘' };
+  const mods = panelPlan(cfg);
+  const panels = [mods.left && '资产库', mods.right && '检查器', mods.bottom && '操作台'].filter(Boolean);
   const pal = PALETTES[cfg.palette] || PALETTES.emerald;
   const pet = PETS[cfg.pet] || PETS.dragon;
-  const many = (k, arr) => (arr || []).map(v => labelOf(k, v)).join(' · ') || '—';
-  const mods = (cfg.core || []).concat(cfg.extra || []);
+  const gamified = cfg.xp !== 'no' || cfg.badge !== 'no';
 
-  const items = [
-    ['主战场', labelOf('scene', cfg.scene)],
-    ['核心痛点', labelOf('pain', cfg.pain)],
-    ['搭档性格', labelOf('role', cfg.role)],
-    ['造物精灵', labelOf('pet', cfg.pet)],
-    ['核心面板', many('core', cfg.core)],
-    ['附加能力', many('extra', cfg.extra)],
-    ['首屏 C 位', labelOf('hero', cfg.hero)],
-    ['任务视图', labelOf('taskview', cfg.taskview)],
-    ['优先级', labelOf('priority', cfg.priority)],
-    ['专注节奏', labelOf('pomolen', cfg.pomolen)],
-    ['统计深度', labelOf('statdepth', cfg.statdepth)],
-    ['配色 / 质感', `${labelOf('palette', cfg.palette)} · ${labelOf('texture', cfg.texture)} · ${labelOf('light', cfg.light)}`],
-    ['游戏化', [labelOf('xp', cfg.xp), labelOf('badge', cfg.badge), labelOf('combo', cfg.combo)].join(' / ')],
-    ['奖励', many('reward', cfg.reward)],
-    ['提醒', labelOf('remind', cfg.remind)],
-    ['信息密度', labelOf('density', cfg.density)],
-    ['起始生态', labelOf('biome', cfg.biome)],
-    ['画质', QUALITY_BY_DEVICE[cfg.device] ? ({ low: '流畅', medium: '标准', high: '高清', cinema: '电影级' })[QUALITY_BY_DEVICE[cfg.device]] : '高清']
+  const steps = [
+    { n: '01', t: '定位', d: `${scenes[cfg.scene] || '综合'} · ${pains[cfg.pain] || '专注'}` },
+    { n: '02', t: '面板', d: panels.join(' + ') || '操作台' },
+    { n: '03', t: '外观', d: `${pal.name} · ${pet.name} · ${labelOf('light', cfg.light)}` },
   ];
+  if (gamified) steps.push({ n: '04', t: '反馈', d: `等级 ${cfg.xp === 'yes' ? '开' : '关'} · 徽章 ${cfg.badge === 'yes' ? '开' : '关'}` });
+  steps.push({ n: String(steps.length + 1).padStart(2, '0'), t: '开始', d: cfg.name });
 
-  return frame(`
-    <div class="gv-body gv-body--result">
-      <div class="gv-result">
-        <div class="gv-bp-head">
-          <div class="gv-bp-pet" aria-hidden="true">${pet.emoji}</div>
-          <div>
-            <div class="gv-bp-tag">蓝图已生成 · ${countAnswered()}/${TOTAL} 已答 · 其余用默认值</div>
-            <h2 class="gv-bp-name">${esc(cfg.name)}</h2>
-            <div class="gv-bp-sub">${mods.length} 个模块 · ${pal.name} · ${labelOf('role', cfg.role)}陪你</div>
-          </div>
-        </div>
-        <div class="gv-bp-grid">
-          ${items.map(([k, v]) => `<div class="gv-bp-item"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('')}
-        </div>
-        <div class="gv-bp-actions">
-          <button type="button" class="gv-btn gv-btn--primary gv-btn--lg" data-act="build">🚀 生成工作区，开始用</button>
-          <button type="button" class="gv-btn gv-btn--ghost" data-act="restart">↺ 重新回答</button>
-          <button type="button" class="gv-btn gv-btn--ghost" data-act="settings">⚙ 单项补填</button>
-          <button type="button" class="gv-btn gv-btn--ghost" data-act="export">⬇ 导出配置</button>
-        </div>
-        <p class="gv-note-line">配置写进 localStorage（键 <code>${KEY}</code>），换设备可导入 JSON。</p>
-      </div>
-    </div>`, true);
+  const advice = `建议从「${scenes[cfg.scene] || '综合'}」起步，先打开 ${panels.join('、') || '操作台'}；` +
+    `外观用${pal.name}配${pet.name}，${labelOf('light', cfg.light)}光照。` +
+    (gamified ? '保留等级与徽章，让进度看得见。' : '先不启用游戏化，把注意力留给场景本身。');
+
+  return { steps, advice };
 }
 
-function settingsHTML() {
+function reviewHTML() {
   const cfg = resolve();
+  const flow = activeFlow();
+  const route = buildRoute(cfg);
   const CN = ['壹', '贰', '叁', '肆', '伍'];
-  const rows = CHAPTERS.map((c, ci) => {
-    const qs = QUESTIONS.filter(x => x.chapter === c.id);
-    return `
-      <section class="gv-set-group">
-        <h3 class="gv-set-h"><span class="gv-ch-n" aria-hidden="true">${CN[ci] || ci + 1}</span> ${c.name}<small>${qs.length} 题</small></h3>
-        ${qs.map(q => {
-          const has = answeredOf(q);
-          const raw = cfg[q.id];
-          const val = Array.isArray(raw) ? (raw.map(v => labelOf(q.id, v)).join(' · ') || '—') : labelOf(q.id, raw);
-          return `<div class="gv-set-row ${has ? '' : 'miss'}">
-            <span class="gv-set-k">${esc(q.title.replace(/[？?].*$/, ''))}</span>
-            <span class="gv-set-v">${has ? '' : '<em class="gv-badge-miss">默认</em>'}${esc(val)}</span>
-            <button type="button" class="gv-set-btn" data-act="jump" data-id="${q.id}">修改</button>
-          </div>`;
-        }).join('')}
-      </section>`;
+  const groups = CHAPTERS.map((c, ci) => {
+    const qs = flow.filter(q => q.chapter === c.id);
+    if (!qs.length) return '';
+    return `<section class="gv-set-group">
+      <h3 class="gv-set-h"><span class="gv-ch-n" aria-hidden="true">${CN[ci] || ci + 1}</span> ${c.name}<small>${qs.length} 项</small></h3>
+      ${qs.map(q => {
+        const has = answeredOf(q);
+        const raw = cfg[q.id];
+        const val = Array.isArray(raw) ? (raw.map(v => labelOf(q.id, v)).join(' · ') || '—') : labelOf(q.id, raw);
+        return `<div class="gv-set-row ${has ? '' : 'miss'}">
+          <span class="gv-set-k">${esc(q.title.replace(/[？?].*$/, ''))}</span>
+          <span class="gv-set-v">${has ? '' : '<em class="gv-badge-miss">推荐</em>'}${esc(val)}</span>
+          <button type="button" class="gv-set-btn" data-act="jump" data-id="${q.id}">修改</button>
+        </div>`;
+      }).join('')}
+    </section>`;
   }).join('');
 
+  const skipped = TOTAL - 1 - flow.length;
+
   return frame(`
-    <div class="gv-body gv-body--settings">
-      <div class="gv-set">
-        <div class="gv-set-head">
-          <div>
-            <h2 class="gv-set-title">配置补填</h2>
-            <p class="gv-set-sub">点「修改」跳到对应问题；带 <em class="gv-badge-miss">默认</em> 的是还没答、正在用安全默认值的项。</p>
-          </div>
-          <div class="gv-set-actions">
-            <button type="button" class="gv-btn gv-btn--ghost" data-act="restart">↺ 重跑 30 问</button>
-            <button type="button" class="gv-btn gv-btn--ghost" data-act="export">⬇ 导出</button>
-            <button type="button" class="gv-btn gv-btn--primary" data-act="build">应用并关闭</button>
-          </div>
+    <div class="gv-body gv-body--review">
+      <div class="gv-review">
+        <div class="gv-rv-head">
+          <h2>确认你的配置</h2>
+          <p>下面是根据你的回答生成的路线。任何一项都可以点「修改」回到对应问题。</p>
         </div>
-        <div class="gv-set-list">${rows}</div>
+        <div class="gv-route">
+          ${route.steps.map(s => `<div class="gv-route-step"><i>${s.n}</i><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></div>`).join('')}
+        </div>
+        <div class="gv-advice"><span class="gv-advice-tag">推荐方案</span><p>${esc(route.advice)}</p></div>
+        <div class="gv-name-row">
+          <label for="gv-review-name">世界名称</label>
+          <input id="gv-review-name" class="gv-text" type="text" maxlength="24" value="${esc(cfg.name)}" />
+        </div>
+        <div class="gv-set-list">${groups}</div>
+        ${skipped > 0 ? `<p class="gv-skipped">另有 ${skipped} 项与你无关，已自动跳过并采用推荐值。</p>` : ''}
       </div>
-    </div>`, true);
+    </div>`, true, `
+      <button type="button" class="gv-btn gv-btn--primary gv-btn--lg" data-act="build">确认并应用</button>
+      <button type="button" class="gv-btn gv-btn--ghost" data-act="export">导出配置</button>
+      <button type="button" class="gv-btn gv-btn--text" data-act="restart">重新回答</button>`);
 }
+
+/* settings 入口直接进审核页，避免两套列表 */
+function settingsHTML() { return reviewHTML(); }
 
 function paint() {
   if (!open) return;
@@ -496,33 +439,27 @@ function paint() {
   root.dataset.density = cfg.density;
   root.dataset.motion = cfg.motion;
   root.innerHTML = view === 'intro' ? introHTML()
-    : view === 'settings' ? settingsHTML()
-      : view === 'result' ? resultHTML()
-        : wizardHTML();
+    : view === 'review' || view === 'settings' ? reviewHTML()
+      : wizardHTML();
 
-  // 焦点：首个选项 / 文本 / 主按钮（补填页聚焦顶部按钮，避免自动滚动把标题顶出视野）
-  const target = view === 'settings'
-    ? root.querySelector('.gv-set-actions .gv-btn--primary')
-    : root.querySelector('.gv-opt, #gv-text, .gv-intro-actions .gv-btn, .gv-bp-actions .gv-btn');
+  const target = view === 'wizard'
+    ? root.querySelector('.gv-opt, #gv-text')
+    : root.querySelector('.gv-intro-actions .gv-btn, .gv-rv-actions .gv-btn');
   if (target && open) {
     try { target.focus({ preventScroll: true }); } catch (_) { /* 忽略 */ }
   }
+  perf.lastFlowLen = activeFlow().length;
 }
 
 /* ---------------- 交互 ---------------- */
 function onClick(e) {
-  const el = e.target.closest('[data-act], [data-ch], .gv-opt');
+  const el = e.target.closest('[data-act], .gv-opt');
   if (!el) return;
-  const act = el.dataset.act;
-
   if (el.classList.contains('gv-opt')) { pickOption(el); return; }
-  if (el.dataset.ch) { jumpChapter(el.dataset.ch); return; }
 
-  switch (act) {
+  switch (el.dataset.act) {
     case 'start':
-      idx = firstUnanswered();
-      view = 'wizard';
-      paint();
+      cursor = 0; view = 'wizard'; paint();
       break;
     case 'skip-all':
       skipAll('user');
@@ -531,21 +468,24 @@ function onClick(e) {
       closeGuide();
       break;
     case 'prev':
-      if (idx > 0) { idx--; paint(); }
+      if (cursor >= BATCH) { cursor -= BATCH; paint(); }
       break;
     case 'next':
-      commit(true);
+      advance();
       break;
-    case 'skip-one':
-      skipOne();
+    case 'skip-group':
+      batchOf().forEach(q => {
+        delete S.answers[q.id];
+        if (S.skippedIds.indexOf(q.id) < 0) S.skippedIds.push(q.id);
+      });
+      save(); advance();
+      break;
+    case 'review':
+      syncName(); view = 'review'; paint();
       break;
     case 'restart':
       S.answers = {}; S.skippedIds = []; S.done = false; S.skippedAll = false;
-      save();
-      idx = 0; view = 'wizard'; paint();
-      break;
-    case 'settings':
-      view = 'settings'; paint();
+      save(); cursor = 0; view = 'wizard'; paint();
       break;
     case 'jump':
       jumpTo(el.dataset.id);
@@ -556,26 +496,39 @@ function onClick(e) {
     case 'export':
       exportConfig();
       break;
-    default:
-      break;
+    default: break;
   }
 }
 
 function onInput(e) {
-  if (e.target && e.target.id === 'gv-text') {
-    const q = QUESTIONS[idx];
-    if (!q || q.type !== 'text') return;
+  if (!e.target) return;
+  if (e.target.id === 'gv-text') {
+    const list = batchOf();
+    const q = list.find(x => x.type === 'text');
+    if (!q) return;
     const v = e.target.value.trim();
-    if (v) S.answers[q.id] = v;
-    else delete S.answers[q.id];
+    if (v) S.answers[q.id] = v; else delete S.answers[q.id];
+    save();
+    return;
+  }
+  if (e.target.id === 'gv-review-name') {
+    const v = e.target.value.trim();
+    if (v) S.answers[NAME_ID] = v; else delete S.answers[NAME_ID];
     save();
   }
 }
-function onChange() { /* 预留：未来若加 select / checkbox */ }
+
+function syncName() {
+  const el = byId('gv-review-name');
+  if (!el) return;
+  const v = el.value.trim();
+  if (v) S.answers[NAME_ID] = v; else delete S.answers[NAME_ID];
+  save();
+}
 
 function pickOption(btn) {
   if (locked) return;
-  const q = QUESTIONS[idx];
+  const q = batchOf().find(x => x.id === btn.closest('[data-id]')?.dataset.id);
   if (!q || !q.options) return;
   const v = btn.dataset.v;
 
@@ -592,72 +545,54 @@ function pickOption(btn) {
       }
     } else cur.push(v);
     if (cur.length) S.answers[q.id] = cur; else delete S.answers[q.id];
-    S.skippedIds = S.skippedIds.filter(x => x !== q.id);
-    save();
-    paint();
-    return;
+  } else {
+    S.answers[q.id] = v;
   }
-
-  S.answers[q.id] = v;
   S.skippedIds = S.skippedIds.filter(x => x !== q.id);
   save();
   paint();
-  // 单选自动前进（最后一题停在原地等「完成」）
-  if (idx < TOTAL - 1) {
-    locked = true;
-    setTimeout(() => { locked = false; commit(true); }, 220);
-  }
 }
 
-function commit(forward) {
-  const q = QUESTIONS[idx];
-  if (!q) return;
-  if (q.type === 'text') {
-    const t = byId('gv-text');
+function advance() {
+  // 文本题在离开本组前收口
+  batchOf().forEach(q => {
+    if (q.type !== 'text') return;
+    const t = document.querySelector(`[data-id="${q.id}"] #gv-text`);
     const v = t ? t.value.trim() : (S.answers[q.id] || '');
-    S.answers[q.id] = v || q.fallback || DEFAULTS.name;
-  }
-  if (!forward) { paint(); return; }
-  if (idx < TOTAL - 1) { idx++; paint(); }
-  else { view = 'result'; paint(); }
-}
-
-function skipOne() {
-  const q = QUESTIONS[idx];
-  if (!q) return;
-  delete S.answers[q.id];
-  if (S.skippedIds.indexOf(q.id) === -1) S.skippedIds.push(q.id);
+    if (v) S.answers[q.id] = v;
+  });
+  const flow = activeFlow();
+  cursor += BATCH;
+  if (cursor >= flow.length) { syncName(); view = 'review'; }
   save();
-  if (idx < TOTAL - 1) { idx++; paint(); }
-  else { view = 'result'; paint(); }
+  paint();
 }
 
-function jumpChapter(chId) {
-  const at = QUESTIONS.findIndex(q => q.chapter === chId);
-  if (at > -1) { idx = at; view = 'wizard'; paint(); }
-}
 function jumpTo(id) {
-  const at = QUESTIONS.findIndex(q => q.id === id);
-  if (at > -1) { idx = at; view = 'wizard'; paint(); }
-}
-function firstUnanswered() {
-  const at = QUESTIONS.findIndex(q => !answeredOf(q));
-  return at > -1 ? at : 0;
+  const at = flowIndex(id);
+  if (at < 0) { toast('该项已按推荐值处理'); return; }
+  cursor = Math.floor(at / BATCH) * BATCH;
+  view = 'wizard';
+  paint();
 }
 
 function buildWorld() {
+  syncName();
   const cfg = resolve();
-  S.done = true;
-  S.skippedAll = false;
+  S.done = true; S.skippedAll = false;
   save();
   applyConfig(cfg, { defer: true });
   closeGuide({ silent: true });
-  toast('配置已生效 · 可在顶栏「向导」继续补填');
+  toast('配置已生效 · 可在顶栏「向导」修改');
 }
 
 function exportConfig() {
+  syncName();
   const cfg = resolve();
-  const data = { app: 'ForgeVerse', version: 'v10', exportedAt: new Date().toISOString(), raw: S.answers, resolved: cfg };
+  const data = {
+    app: 'ForgeVerse', version: 'v11', exportedAt: new Date().toISOString(),
+    raw: S.answers, resolved: cfg, flow: activeFlow().map(q => q.id)
+  };
   try {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -671,26 +606,30 @@ function exportConfig() {
 
 /* ---------------- 开关 ---------------- */
 export function openGuide(mode) {
-  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }  // 显式打开时取消待触发的自动开场
+  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
   load();
   const root = ensureRoot();
   lastFocus = document.activeElement;
   open = true;
   document.body.classList.add('fv-guide-open');
-  if (mode === 'settings') view = 'settings';
-  else if (mode === 'wizard') { idx = firstUnanswered(); view = 'wizard'; }
-  else view = S.done ? 'settings' : 'intro';
+  if (mode === 'review' || mode === 'settings') view = 'review';
+  else if (mode === 'wizard') { cursor = Math.floor(Math.max(0, flowIndex(firstPending())) / BATCH) * BATCH; view = 'wizard'; }
+  else view = S.done ? 'review' : 'intro';
   paint();
   root.hidden = false;
   refreshEntry();
-  // 关闭提示条
   const bar = byId(NOTE_ID); if (bar) bar.hidden = true;
+}
+
+function firstPending() {
+  const q = activeFlow().find(x => !answeredOf(x) && S.skippedIds.indexOf(x.id) < 0);
+  return q ? q.id : '';
 }
 
 export function closeGuide(opts) {
   const options = opts || {};
   open = false;
-  if (!S.done) S.introSeen = true;   // 主动关掉开场后，下次刷新不再自动弹
+  if (!S.done) S.introSeen = true;
   save();
   const root = byId(ROOT_ID);
   if (root) { root.hidden = true; root.innerHTML = ''; }
@@ -700,7 +639,7 @@ export function closeGuide(opts) {
     try { lastFocus.focus({ preventScroll: true }); } catch (_) { /* 忽略 */ }
   }
   if (!options.silent) {
-    const missing = QUESTIONS.filter(q => !answeredOf(q)).length;
+    const missing = pendingCount();
     if (missing > 0) showHint(missing);
   }
 }
@@ -713,34 +652,21 @@ function refreshEntry() {
 export function getGuideConfig() { return resolve(); }
 export function isGuideDone() { return !!S.done; }
 
-/* ---------------- 键盘：打开时接管，避免触发场景快捷键 ---------------- */
+/* ---------------- 键盘 ---------------- */
 function onKeyDown(e) {
   if (!open) return;
   const tag = (e.target && e.target.tagName) || '';
   const typing = tag === 'INPUT' || tag === 'TEXTAREA';
-
   if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeGuide(); return; }
-
   if (view !== 'wizard' || typing) return;
-  const q = QUESTIONS[idx];
-  if (!q) return;
-
-  if (e.key === 'Enter' || e.key === 'ArrowRight') {
-    e.preventDefault(); e.stopPropagation(); commit(true); return;
-  }
-  if (e.key === 'ArrowLeft') {
-    e.preventDefault(); e.stopPropagation();
-    if (idx > 0) { idx--; paint(); }
-    return;
-  }
   const n = parseInt(e.key, 10);
-  if (n >= 1 && n <= 9 && q.options && q.options[n - 1]) {
+  if (n >= 1 && n <= 9 && byId(ROOT_ID)?.querySelector(`.gv-opt[data-i="${n - 1}"]`)) {
     e.preventDefault(); e.stopPropagation();
-    const btn = document.querySelector(`#${ROOT_ID} .gv-opt[data-i="${n - 1}"]`);
-    if (btn) btn.click();
+    byId(ROOT_ID).querySelector(`.gv-opt[data-i="${n - 1}"]`).click();
     return;
   }
-  // 阻断其余按键，避免 W/E/R/Delete 改动场景
+  if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); advance(); return; }
+  if (e.key === 'ArrowLeft' && cursor >= BATCH) { e.preventDefault(); e.stopPropagation(); cursor -= BATCH; paint(); return; }
   if (['w', 'W', 'e', 'E', 'r', 'R', 'Delete', 'Backspace'].indexOf(e.key) > -1) e.stopPropagation();
 }
 
@@ -748,14 +674,11 @@ function onKeyDown(e) {
 export function initGuide() {
   load();
   ensureRoot();
-
-  // 恢复上次配置（轻量部分立即，重量部分下一帧）
   const touched = Object.keys(S.answers).length > 0 || S.done;
   if (touched) {
     try { applyConfig(resolve(), { defer: true }); } catch (err) { console.warn('[guide] 恢复配置失败', err); }
   }
 
-  // 顶栏入口 + 设置入口
   const openBtn = byId('fv-guide-open');
   if (openBtn) {
     openBtn.onclick = () => openGuide();
@@ -764,10 +687,8 @@ export function initGuide() {
   const wmSettings = byId('wmSettings');
   if (wmSettings && !wmSettings.dataset.guideBound) {
     wmSettings.dataset.guideBound = '1';
-    wmSettings.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); openGuide('settings'); }, true);
+    wmSettings.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); openGuide('review'); }, true);
   }
-
-  // 世界名输入：用户手动改过就不再被向导默认值覆盖
   ['wcName', 'worldName'].forEach(id => {
     const el = byId(id);
     if (el && !el.dataset.guideBound) {
@@ -777,8 +698,6 @@ export function initGuide() {
   });
 
   document.addEventListener('keydown', onKeyDown, true);
-
-  // 首次进入自动打开（专注模式 / 已完成 / 已跳过 / 已主动关掉 不打扰）
   const auto = !S.done && !S.skippedAll && !S.introSeen;
   if (auto) {
     let focused = false;
