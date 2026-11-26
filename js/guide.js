@@ -17,6 +17,16 @@ const NOTE_ID = 'fv-guide-note';
 const BATCH = 2;                    // 每次只问两题
 const NAME_ID = 'name';             // 名字放到审核页填，不占问答轮次
 
+/* 章节矢量图标：统一 24 网格线性描边，避免彩色 emoji 破坏绿金体系 */
+const CH_SVG = {
+  who: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>',
+  rooms: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="7" rx="1.2"/><rect x="9.5" y="13" width="5" height="7" rx="1.2"/><rect x="16" y="4" width="5" height="16" rx="1.2"/></svg>',
+  skin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h2.2c1.6 0 2.4-1.2 2.4-2.4 0-1.4-1-2.1-1-3.2 0-1.2.9-2 2.2-2H20a2 2 0 0 0 2-2A9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>',
+  play: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 10v4M5 12h4M16 11h.01M18.5 13.5h.01"/></svg>',
+  tune: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg>',
+  start: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/><path d="M5 5v14"/></svg>'
+};
+
 let S = { answers: {}, skippedIds: [], done: false, skippedAll: false, hinted: false, introSeen: false, updatedAt: 0 };
 let cursor = 0;                     // 当前组在 flow 中的起始下标
 let view = 'intro';                 // intro | wizard | review | settings
@@ -335,7 +345,8 @@ function wizardHTML() {
 
   const cards = list.map(q => `
     <section class="gv-qcard" data-id="${q.id}">
-      <div class="gv-qtop"><span class="gv-qtag">${esc((CHAPTERS.find(c => c.id === q.chapter) || {}).name || '配置')}</span>
+      <div class="gv-qtop"><span class="gv-qico">${CH_SVG[q.chapter] || CH_SVG.start}</span>
+        <span class="gv-qtag">${esc((CHAPTERS.find(c => c.id === q.chapter) || {}).name || '配置')}</span>
         ${q.rec ? '<span class="gv-qrec">有推荐值</span>' : ''}</div>
       <h3 class="gv-q">${esc(q.title)}</h3>
       <div class="gv-field">${fieldHTML(q)}</div>
@@ -362,12 +373,12 @@ function buildRoute(cfg) {
   const gamified = cfg.xp !== 'no' || cfg.badge !== 'no';
 
   const steps = [
-    { n: '01', t: '定位', d: `${scenes[cfg.scene] || '综合'} · ${pains[cfg.pain] || '专注'}` },
-    { n: '02', t: '面板', d: panels.join(' + ') || '操作台' },
-    { n: '03', t: '外观', d: `${pal.name} · ${pet.name} · ${labelOf('light', cfg.light)}` },
+    { n: '01', k: 'who', t: '定位', d: `${scenes[cfg.scene] || '综合'} · ${pains[cfg.pain] || '专注'}` },
+    { n: '02', k: 'rooms', t: '面板', d: panels.join(' + ') || '操作台' },
+    { n: '03', k: 'skin', t: '外观', d: `${pal.name} · ${pet.name} · ${labelOf('light', cfg.light)}` },
   ];
-  if (gamified) steps.push({ n: '04', t: '反馈', d: `等级 ${cfg.xp === 'yes' ? '开' : '关'} · 徽章 ${cfg.badge === 'yes' ? '开' : '关'}` });
-  steps.push({ n: String(steps.length + 1).padStart(2, '0'), t: '开始', d: cfg.name });
+  if (gamified) steps.push({ n: '04', k: 'play', t: '反馈', d: `等级 ${cfg.xp === 'yes' ? '开' : '关'} · 徽章 ${cfg.badge === 'yes' ? '开' : '关'}` });
+  steps.push({ n: String(steps.length + 1).padStart(2, '0'), k: 'start', t: '开始', d: cfg.name });
 
   const advice = `建议从「${scenes[cfg.scene] || '综合'}」起步，先打开 ${panels.join('、') || '操作台'}；` +
     `外观用${pal.name}配${pet.name}，${labelOf('light', cfg.light)}光照。` +
@@ -409,7 +420,7 @@ function reviewHTML() {
           <p>下面是根据你的回答生成的路线。任何一项都可以点「修改」回到对应问题。</p>
         </div>
         <div class="gv-route">
-          ${route.steps.map(s => `<div class="gv-route-step"><i>${s.n}</i><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></div>`).join('')}
+          ${route.steps.map(s => `<div class="gv-route-step"><span class="gv-ri">${CH_SVG[s.k] || CH_SVG.start}</span><i>${s.n}</i><div><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div></div>`).join('')}
         </div>
         <div class="gv-advice"><span class="gv-advice-tag">推荐方案</span><p>${esc(route.advice)}</p></div>
         <div class="gv-name-row">
@@ -438,9 +449,14 @@ function paint() {
   root.dataset.tex = cfg.texture;
   root.dataset.density = cfg.density;
   root.dataset.motion = cfg.motion;
+  // 重绘前记住滚动位置：换组 / 跳回审核时不再把用户带回顶部
+  const keepScroll = [...root.querySelectorAll('.gv-body, .gv-set-list')].map(el => el.scrollTop);
   root.innerHTML = view === 'intro' ? introHTML()
     : view === 'review' || view === 'settings' ? reviewHTML()
       : wizardHTML();
+  [...root.querySelectorAll('.gv-body, .gv-set-list')].forEach((el, i) => {
+    if (keepScroll[i] != null) el.scrollTop = keepScroll[i];
+  });
 
   const target = view === 'wizard'
     ? root.querySelector('.gv-opt, #gv-text')
@@ -526,14 +542,32 @@ function syncName() {
   save();
 }
 
+/* 只更新进度条文案，不重建 DOM —— 避免滚动位置被重置 */
+function refreshProgress() {
+  const host = byId(ROOT_ID);
+  if (!host) return;
+  const flow = activeFlow();
+  const ans = flow.filter(answeredOf).length;
+  const pct = flow.length ? Math.round(ans / flow.length * 100) : 0;
+  const bar = host.querySelector('.gv-bar i');
+  if (bar) bar.style.width = pct + '%';
+  const label = view === 'wizard'
+    ? `第 ${Math.floor(cursor / BATCH) + 1} / ${Math.ceil(flow.length / BATCH)} 组`
+    : `${ans} / ${flow.length} 项`;
+  const cnt = host.querySelector('.gv-count');
+  if (cnt) cnt.textContent = label;
+}
+
 function pickOption(btn) {
   if (locked) return;
-  const q = batchOf().find(x => x.id === btn.closest('[data-id]')?.dataset.id);
+  const card = btn.closest('[data-id]');
+  const q = batchOf().find(x => x.id === card?.dataset.id);
   if (!q || !q.options) return;
   const v = btn.dataset.v;
+  let cur = [];
 
   if (q.type === 'multi') {
-    let cur = Array.isArray(S.answers[q.id]) ? S.answers[q.id].slice() : [];
+    cur = Array.isArray(S.answers[q.id]) ? S.answers[q.id].slice() : [];
     const at = cur.indexOf(v);
     if (at > -1) cur.splice(at, 1);
     else if (q.max && cur.length >= q.max) {
@@ -547,10 +581,25 @@ function pickOption(btn) {
     if (cur.length) S.answers[q.id] = cur; else delete S.answers[q.id];
   } else {
     S.answers[q.id] = v;
+    cur = [v];
   }
   S.skippedIds = S.skippedIds.filter(x => x !== q.id);
   save();
-  paint();
+
+  // 局部更新选中态：整棵 innerHTML 重建会让滚动容器 scrollTop 归零，
+  // 表现为「下滑一点就自动弹回顶部」，必须避免。
+  if (q.type === 'multi') {
+    const on = cur.indexOf(v) > -1;
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', String(on));
+  } else if (card) {
+    card.querySelectorAll('.gv-opt').forEach(o => {
+      const on = o === btn;
+      o.classList.toggle('on', on);
+      o.setAttribute('aria-pressed', String(on));
+    });
+  }
+  refreshProgress();
 }
 
 function advance() {
