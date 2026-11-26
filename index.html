@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/3d.css?v=11.0.1" />
 <link rel="stylesheet" href="css/guide.css?v=11.0.1" />
 <link rel="stylesheet" href="css/theme-v11.css?v=11.0.1" />
-<link rel="stylesheet" href="css/theme-v12.css?v=12.3.4" />
+<link rel="stylesheet" href="css/theme-v12.css?v=12.5.0" />
 <!-- v9 工作台新增：仅本页生效，全部类/ID 以 v9- 前缀，变量复用 3d.css :root -->
 <style>
 .v9-modebar{position:absolute;top:68px;left:50%;transform:translateX(-50%);z-index:16;
@@ -177,30 +177,30 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
     <div id="customAssets" class="lib"></div>
     <div class="lbl">基础体</div>
     <div class="lib" id="libPrim">
-      <button data-spawn="box">⬛ 立方体</button>
-      <button data-spawn="sphere">● 球体</button>
-      <button data-spawn="capsule">🥫 胶囊</button>
-      <button data-spawn="cone">▲ 锥体</button>
-      <button data-spawn="cylinder">⬢ 圆柱</button>
-      <button data-spawn="torus">◯ 圆环</button>
+      <button data-spawn="box" data-icon="box">立方体</button>
+      <button data-spawn="sphere" data-icon="sphere">球体</button>
+      <button data-spawn="capsule" data-icon="capsule">胶囊</button>
+      <button data-spawn="cone" data-icon="cone">锥体</button>
+      <button data-spawn="cylinder" data-icon="cylinder">圆柱</button>
+      <button data-spawn="torus" data-icon="torus">圆环</button>
     </div>
     <div class="lbl">高级几何体</div>
     <div class="lib" id="libAdv">
-      <button data-adv="torusKnot">🌀 纽结</button>
-      <button data-adv="icosa">🔷 二十面</button>
-      <button data-adv="dodeca">⬡ 十二面</button>
-      <button data-adv="octa">💎 八面</button>
-      <button data-adv="lathe">🏺 旋转体</button>
-      <button data-adv="spring">〰 弹簧</button>
+      <button data-adv="torusKnot" data-icon="knot">纽结</button>
+      <button data-adv="icosa" data-icon="icosa">二十面</button>
+      <button data-adv="dodeca" data-icon="dodeca">十二面</button>
+      <button data-adv="octa" data-icon="octa">八面</button>
+      <button data-adv="lathe" data-icon="lathe">旋转体</button>
+      <button data-adv="spring" data-icon="spring">弹簧</button>
     </div>
     <div class="lbl">场景物件</div>
     <div class="lib" id="libModel">
-      <button data-model="tree">🌳 树</button>
-      <button data-model="rock">🪨 巨石</button>
-      <button data-model="bush">🌿 灌木</button>
-      <button data-model="lamp">💡 路灯</button>
-      <button data-model="char">🧍 角色</button>
-      <button data-model="chest">📦 宝箱</button>
+      <button data-model="tree" data-icon="tree">树</button>
+      <button data-model="rock" data-icon="rock">巨石</button>
+      <button data-model="bush" data-icon="bush">灌木</button>
+      <button data-model="lamp" data-icon="lamp">路灯</button>
+      <button data-model="char" data-icon="char">角色</button>
+      <button data-model="chest" data-icon="chest">宝箱</button>
     </div>
     <div class="lbl">场景树 <span id="treeCount" class="cnt">0</span></div>
     <div id="sceneTree" class="tree"></div>
@@ -744,6 +744,6 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
   <div id="loading" class="modal"><div class="card loading-card"><div class="spin"></div><p>正在加载本地 3D 引擎…</p></div></div>
 </div>
 
-<script type="module" src="js/main.js?v=12.3.4"></script>
+<script type="module" src="js/main.js?v=12.5.0"></script>
 </body>
 </html>

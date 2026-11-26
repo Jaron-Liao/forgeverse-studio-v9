@@ -827,3 +827,47 @@ body[data-fv-theme="night"] .gv-advice{
 @media(max-width:1100px){
   :root{--dock-w:min(86vw,360px)}
 }
+
+/* ---------- 线性图标 + 面板节奏 ---------- */
+.bv-ico{
+  display:inline-flex;width:14px;height:14px;flex:0 0 auto;
+  margin-right:6px;vertical-align:-2px;
+  color:var(--teal);opacity:.9;
+}
+.bv-ico svg{width:100%;height:100%;display:block}
+#app #leftbar .lib button,
+#app #rightbar button{transition:background .15s,border-color .15s,color .15s}
+#app #leftbar .lib button:hover,
+#app #rightbar button:hover{border-color:var(--brass-line)}
+
+/* 右栏分组更清晰，内容少时留白不散 */
+#app #rightbar .lbl{
+  margin:13px 0 8px;padding-bottom:5px;
+  border-bottom:1px solid var(--line-soft);font-size:10px;letter-spacing:1px;
+}
+
+/* 底栏拖高时卡片不拉伸；卡片间隙露极淡网格，避免大片空白 */
+#app #bottombar .v9-bottom-body{
+  align-items:flex-start;
+  background-image:
+    linear-gradient(rgba(11,107,75,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(11,107,75,.022) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+#app #bottombar .info-col{max-height:184px}
+#app #bottombar .tasks{max-height:184px}
+
+/* 按钮左对齐：图标与文字同一条基线，Blender 工具栏语言 */
+#app #leftbar .lib button,#app #leftbar .lib2 button,
+#app #rightbar .lib button,#app #rightbar .lib2 button{
+  display:flex;align-items:center;justify-content:flex-start;
+  text-align:left;padding:9px 11px;gap:0;
+}
+/* 顶栏纯图标按钮 / 搜索放大镜：单色化，去掉彩色噪点 */
+.bv-mono{filter:grayscale(1) opacity(.82)}
+#topbar .searchbar span{filter:grayscale(1);opacity:.6}
+
+/* 场景树：CSS 矢量小标记替代 emoji */
+.tree-ico{width:9px;height:9px;display:inline-block;flex:0 0 auto;
+  border:1.5px solid var(--teal);border-radius:2px;opacity:.8}
+.tree-ico.model{border-radius:50%;border-color:var(--brass)}

@@ -1,10 +1,11 @@
 import * as THREE from 'three';
+import { applyIcons, normalizePanelIcons } from './icons.js';
 import { App, bus, toast, setPet, isFocusMode, setFocusMode } from './state.js';
 import { createEngine } from './engine.js';
 import {
   spawnPrimitive, spawnModel, selectObject, selectFromMesh, deleteSelected,
   duplicateSelected, applyMaterial, toggleHideSelected, updateInspector, renderTree, updateHUD, refreshSelBox,
-} from './objects.js';
+} from './objects.js?v=12.5.0';
 import { initPaint } from './paint.js';
 import { initWorld, generateTerrain, applyTheme, createWater, setFog, setGrid } from './world.js';
 import { initTasks, addTask } from './tasks.js';
@@ -137,6 +138,8 @@ function boot() {
     });
   });
   setupAutoHide();
+  applyIcons();
+  normalizePanelIcons();
 
   // 选择 + 布尔拾取
   const ray = new THREE.Raycaster();
@@ -567,7 +570,7 @@ function wireGuideBridge() {
       setQuality(d.quality);
       applyPerfProfile(d.quality);
       const qb = $('btnQuality');
-      if (qb) qb.textContent = '🎬 ' + (QUALITY_TEXT[d.quality] || QUALITY[d.quality].label);
+      if (qb) qb.textContent = QUALITY_TEXT[d.quality] || QUALITY[d.quality].label;
     }
 
     // 3) 时段：同步滑杆与真实光照

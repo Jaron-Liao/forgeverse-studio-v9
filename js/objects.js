@@ -262,7 +262,7 @@ export function renderTree() {
   App.objects.forEach(rec => {
     const n = document.createElement('div');
     n.className = 'node' + (App.selected === rec ? ' sel' : '') + (rec.root.visible ? '' : ' hidden');
-    n.innerHTML = `<span>${rec.kind === 'model' ? '🌟' : '⬛'}</span><span>${rec.name}</span><span class="x">✕</span>`;
+    n.innerHTML = `<span class="tree-ico ${rec.kind === 'model' ? 'model' : 'prim'}"></span><span>${rec.name}</span><span class="x">✕</span>`;
     n.onclick = e => { if (e.target.classList.contains('x')) { App.selected = rec; deleteSelected(); } else selectObject(rec); };
     t.appendChild(n);
   });
