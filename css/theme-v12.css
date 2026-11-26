@@ -731,3 +731,99 @@ body[data-fv-theme="night"] .gv-advice{
 .gv-review .gv-set-group{margin-bottom:12px}
 .gv-review .gv-set-row{padding:6px 9px;column-gap:10px}
 .gv-set-btn{white-space:nowrap}
+
+/* ============================================================
+   停靠面板（Blender 式）：贴边、直角、标题栏、可拖拽底栏
+   3d.css 用 #app 前缀 + --v9-* 变量定位；这里覆盖变量，避免打特异性官司
+   ============================================================ */
+:root{
+  --bb-h:34px;
+  --dock-w:clamp(320px,30vw,432px);
+}
+/* 3d.css 把槽位变量定义在 #app 上（元素自身声明优先于继承），
+   所以必须同样写在 #app 上才覆盖得掉，写在 :root 无效。 */
+#app{
+  --v9-gap:0px;
+  --v9-left-w:var(--dock-w);
+  --v9-right-w:var(--dock-w);
+  --v9-top-slot:56px;
+  --v9-bottom-h:var(--bb-h);
+  --v9-bottom-reserve:var(--bb-h);
+  --v9-bottom-gap:0px;
+  --v9-left-bound:0px;
+  --v9-right-bound:0px;
+}
+
+/* 视口给底部让位，面板不再压住 3D 内容 */
+#stage{inset:0 0 var(--bb-h) 0}
+
+#app #leftbar,#app #rightbar{
+  top:56px;bottom:var(--bb-h);
+  max-height:none;min-height:0;
+  margin:0;padding:0 14px 14px;
+  border:0;border-radius:0;
+  clip-path:none;backdrop-filter:none;box-shadow:none;
+  background:var(--surface);
+  overflow-y:auto;overflow-x:hidden;
+  z-index:22;
+  transition:transform .24s var(--ease);
+  scrollbar-width:thin;
+}
+#app #leftbar{left:0;border-right:1px solid var(--line)}
+#app #rightbar{right:0;border-left:1px solid var(--line)}
+#app #leftbar.collapsed{transform:translateX(calc(-100% + 30px));overflow:hidden}
+#app #rightbar.collapsed{transform:translateX(calc(100% - 30px));overflow:hidden}
+
+/* 收起时露出的 30px 轨道：竖排标签，明确可点 */
+#app #leftbar.collapsed::after,#app #rightbar.collapsed::after{
+  content:attr(data-rail-label);
+  position:absolute;inset:0;display:grid;place-items:center;
+  writing-mode:vertical-rl;letter-spacing:3px;font-size:11px;
+  color:var(--sub);background:var(--surface-2);pointer-events:none;
+}
+#app #leftbar.collapsed::after{border-right:1px solid var(--line)}
+#app #rightbar.collapsed::after{border-left:1px solid var(--line)}
+
+/* 标题栏：贴顶 + 小字大写字距 */
+#app #leftbar .v9-panel-head,#app #rightbar .v9-panel-head{
+  position:sticky;top:0;z-index:3;
+  display:flex;align-items:center;justify-content:space-between;
+  height:34px;min-height:34px;margin:0 -14px 10px;padding:0 8px 0 14px;
+  background:var(--surface-2);border-bottom:1px solid var(--line);border-radius:0;
+}
+.v9-panel-title{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--sub);text-transform:uppercase}
+.v9-panel-close{width:22px;height:22px;border-radius:4px;color:var(--text-mute)}
+.v9-panel-close:hover{background:var(--surface-hi);color:var(--text-hi)}
+#app #rightbar .tabs{margin:0 -14px 10px;padding:6px 10px;border-bottom:1px solid var(--line);gap:3px}
+
+/* 底部操作台：满宽、25% 高、上边缘可拖拽 */
+#app #bottombar{
+  display:flex;flex-direction:column;gap:0;
+  left:0;right:0;bottom:0;
+  height:var(--bb-h);
+  padding:0;
+  background:var(--surface);
+  border:0;border-top:1px solid var(--line);
+  border-radius:0;clip-path:none;
+  box-shadow:0 -10px 28px rgba(24,42,30,.09);
+  z-index:26;overflow:hidden;
+  transition:height .24s var(--ease);
+}
+#app #bottombar.collapsed{height:34px}
+#app #bottombar.collapsed .v9-bottom-body{display:none}
+#app #bottombar .v9-panel-head--bottom{
+  flex:0 0 34px;min-height:34px;margin:0;padding:0 8px 0 14px;
+  border-radius:0;background:var(--surface-2);position:relative;z-index:2;
+}
+#app #bottombar .v9-bottom-body{flex:1;min-height:0;padding:10px 14px 12px;overflow:auto;display:flex}
+
+/* 拖拽把手 */
+.bb-resize{position:absolute;left:0;right:0;top:-4px;height:9px;cursor:ns-resize;z-index:6}
+.bb-resize::after{content:'';position:absolute;left:50%;top:4px;transform:translateX(-50%);
+  width:46px;height:3px;border-radius:2px;background:var(--line-strong);opacity:0;transition:opacity .15s}
+.bb-resize:hover::after{opacity:.85}
+
+/* 窄屏：面板收窄，避免把视口挤没 */
+@media(max-width:1100px){
+  :root{--dock-w:min(86vw,360px)}
+}

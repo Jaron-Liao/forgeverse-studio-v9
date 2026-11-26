@@ -48,7 +48,7 @@ const $ = id => document.getElementById(id);
 const MODE_TXT = { select: '选择', paint: '绘画', sculpt: '雕刻', terrain: '地貌' };
 const TABS = ['obj', 'build', 'paint', 'mat', 'world', 'env', 'scene'];
 // FV-A1：面板显隐（键 + 栏 ID + 提示名），localStorage 键固定为 v9.panels
-const PANELS_KEY = 'v9.panels';
+const PANELS_KEY = 'v9.panels.v2';
 const PANEL_BARS = { left: 'leftbar', right: 'rightbar', bottom: 'bottombar' };
 const PANEL_NAME = { left: '左侧栏', right: '右侧栏', bottom: '下侧栏' };
 
@@ -196,7 +196,8 @@ function boot() {
 
 // ---------- FV-A1：面板显隐 / 重开 / 持久化 ----------
 function readPanelState() {
-  const state = { left: true, right: true, bottom: true };
+  // v2：默认只展开左侧栏。三栏同时弹出会挡住大半视口，且每次刷新都要手动收。
+  const state = { left: true, right: false, bottom: false };
   try {
     const raw = JSON.parse(localStorage.getItem(PANELS_KEY) || 'null');
     if (raw && typeof raw === 'object') {
@@ -213,13 +214,25 @@ function applyPanelState() {
   Object.keys(PANEL_BARS).forEach(key => {
     const bar = $(PANEL_BARS[key]);
     const shown = panelState[key];
-    // 只切 class，不删 DOM / 不改 ID；.collapsed（闲置自动收起）与之彼此独立
-    if (bar) bar.classList.toggle('v9-panel-hidden', !shown);
-    app.classList.toggle('v9-no-' + key, !shown); // 触发 CSS 槽位变化 → 其余栏自动扩展
+    // 收起 = 贴边留一条 30px 轨道；不用 display:none，否则没有唤出入口
+    if (bar) bar.classList.toggle('collapsed', !shown);
+    app.classList.toggle('v9-no-' + key, !shown);
     const cb = $('v9-show-' + key);
     if (cb) cb.checked = shown;
   });
+  syncDockHeight();
   try { localStorage.setItem(PANELS_KEY, JSON.stringify(panelState)); } catch (_) {}
+}
+
+let bbHeight = 0;
+
+/* 底部操作台高度写进 CSS 变量，左右面板的 bottom 自动让位 */
+function syncDockHeight() {
+  const open = panelState.bottom;
+  const h = open ? (bbHeight || Math.round(window.innerHeight * 0.25)) : 34;
+  document.documentElement.style.setProperty('--bb-h', h + 'px');
+  document.body.dataset.bb = open ? 'open' : 'closed';
+  requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
 }
 function setPanel(key, shown) {
   if (!Object.prototype.hasOwnProperty.call(PANEL_BARS, key)) return;
@@ -544,12 +557,10 @@ function wireGuideBridge() {
     const d = e.detail || {};
     const cfg = d.cfg || {};
 
-    // 1) 面板显隐：走既有 setPanel（含 localStorage 持久化与勾选态同步）
-    if (d.panels) {
-      Object.keys(PANEL_BARS).forEach(k => {
-        if (typeof d.panels[k] === 'boolean' && panelState[k] !== d.panels[k]) setPanel(k, d.panels[k]);
-      });
-    }
+    // 1) 面板开合属于布局偏好，由用户手动控制并持久化。
+    //    这里只应用「面板内部」的内容开关（小地图/统计/搜索），不再强制拉开三栏——
+    //    否则每次向导应用都会把 right/bottom 设回 true，与「默认只展开左栏」冲突。
+    //    （原实现见 v12.3.1 之前的 setPanel 循环，已移除）
 
     // 2) 画质：只在真的不同时切，避免重复重建后处理管线
     if (d.quality && QUALITY[d.quality] && App.quality !== d.quality) {
@@ -844,24 +855,52 @@ function updateInfoBar() {
   if (sd) sd.textContent = '种子 ' + getSeed();
 }
 
-// 侧栏闲置自动收起（3 秒无操作），鼠标靠近展开
+// 停靠面板：只保留手动开合。
+// 原来的 4 秒闲置自动收起会让面板不停呼吸，鼠标一动又弹出，正是「不用点就跳出来」的来源。
 function setupAutoHide() {
   const bars = [$('leftbar'), $('rightbar')].filter(Boolean);
-  if (!bars.length) return;
-  let timer = null;
-  const reset = () => {
-    bars.forEach(b => b.classList.remove('collapsed'));
-    clearTimeout(timer);
-    timer = setTimeout(() => bars.forEach(b => {
-      if (!b.matches(':hover')) b.classList.add('collapsed');
-    }), 4000);
-  };
-  ['pointermove', 'pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, reset, { passive: true }));
   bars.forEach(b => {
-    const h = b.querySelector('.rail-handle');
-    if (h) h.onclick = () => b.classList.toggle('collapsed');
+    b.classList.remove('auto-hide');
+    const key = b.id === 'leftbar' ? 'left' : 'right';
+    // 收起后只有 30px 轨道，把手太小；整条都可点展开（展开态点击不误收）
+    b.addEventListener('click', () => {
+      if (b.classList.contains('collapsed')) togglePanel(key);
+    });
   });
-  reset();
+  const bb = $('bottombar');
+  if (bb) bb.addEventListener('click', e => {
+    if (bb.classList.contains('collapsed') && !e.target.closest('.bb-resize')) setPanel('bottom', true);
+  });
+  setupBottomResize();
+}
+
+/* 操作台上边缘拖拽调高（Blender 风格横向分割） */
+function setupBottomResize() {
+  const bar = $('bottombar');
+  if (!bar || bar.querySelector('.bb-resize')) return;
+  const grip = document.createElement('div');
+  grip.className = 'bb-resize';
+  grip.title = '拖拽调整操作台高度';
+  bar.appendChild(grip);
+  let drag = null;
+  grip.addEventListener('pointerdown', e => {
+    if (!panelState.bottom) return;
+    drag = { y: e.clientY, h: bar.getBoundingClientRect().height };
+    grip.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const next = Math.max(120, Math.min(Math.round(window.innerHeight * 0.6), drag.h - (e.clientY - drag.y)));
+    bbHeight = next;
+    bar.style.height = next + 'px';
+  });
+  grip.addEventListener('pointerup', e => {
+    if (!drag) return;
+    drag = null;
+    try { grip.releasePointerCapture(e.pointerId); } catch (_) {}
+    syncDockHeight();
+  });
 }
 
 function setMode(m) {

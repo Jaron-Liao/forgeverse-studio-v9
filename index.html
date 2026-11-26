@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/3d.css?v=11.0.1" />
 <link rel="stylesheet" href="css/guide.css?v=11.0.1" />
 <link rel="stylesheet" href="css/theme-v11.css?v=11.0.1" />
-<link rel="stylesheet" href="css/theme-v12.css?v=12.2.2" />
+<link rel="stylesheet" href="css/theme-v12.css?v=12.3.4" />
 <!-- v9 工作台新增：仅本页生效，全部类/ID 以 v9- 前缀，变量复用 3d.css :root -->
 <style>
 .v9-modebar{position:absolute;top:68px;left:50%;transform:translateX(-50%);z-index:16;
@@ -131,9 +131,9 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
         </button>
         <div id="v9-panel-menu" class="v9-panel-menu" hidden>
           <div class="v9-panel-menu-title">显示面板</div>
-          <label class="v9-panel-opt"><input id="v9-show-left" type="checkbox" checked /> 左侧栏 · 资产库</label>
-          <label class="v9-panel-opt"><input id="v9-show-right" type="checkbox" checked /> 右侧栏 · 检查器</label>
-          <label class="v9-panel-opt"><input id="v9-show-bottom" type="checkbox" checked /> 下侧栏 · 操作台</label>
+          <label class="v9-panel-opt"><input id="v9-show-left" type="checkbox" /> 左侧栏 · 资产库</label>
+          <label class="v9-panel-opt"><input id="v9-show-right" type="checkbox" /> 右侧栏 · 检查器</label>
+          <label class="v9-panel-opt"><input id="v9-show-bottom" type="checkbox" /> 下侧栏 · 操作台</label>
           <div class="v9-panel-hint">[ 左栏 · ] 右栏 · F2 下栏<br>状态自动保存，刷新后保持</div>
         </div>
       </div>
@@ -160,7 +160,7 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
   </header>
 
   <!-- 左侧：模型库 -->
-  <aside id="leftbar" class="auto-hide">
+  <aside id="leftbar" data-rail-label="资产库">
     <div class="rail-handle" title="悬停展开">‹</div>
     <div class="v9-panel-head">
       <span class="v9-panel-title">资产库</span>
@@ -207,7 +207,7 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
   </aside>
 
   <!-- 右侧：检查器（6 标签） -->
-  <aside id="rightbar" class="auto-hide">
+  <aside id="rightbar" data-rail-label="检查器">
     <div class="rail-handle" title="悬停展开">›</div>
     <div class="v9-panel-head">
       <span class="v9-panel-title">检查器</span>
@@ -744,6 +744,6 @@ body.v10-focus-on .v9-vt-hint,body.v10-focus-on .guide-bubble{display:none!impor
   <div id="loading" class="modal"><div class="card loading-card"><div class="spin"></div><p>正在加载本地 3D 引擎…</p></div></div>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=12.3.4"></script>
 </body>
 </html>
